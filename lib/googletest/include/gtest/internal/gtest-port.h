@@ -1653,7 +1653,7 @@ class MutexBase {
 
   // Releases this mutex.
   void Unlock() {
-    // Since the lock is being released the owner_ field should no longer be
+    // Since the lock is being released the owner_ Field should no longer be
     // considered valid. We don't protect writing to has_owner_ here, as it's
     // the caller's responsibility to ensure that the current thread holds the
     // mutex when this is called.
@@ -1675,9 +1675,9 @@ class MutexBase {
   // have to be public.
  public:
   pthread_mutex_t mutex_;  // The underlying pthread mutex.
-  // has_owner_ indicates whether the owner_ field below contains a valid thread
+  // has_owner_ indicates whether the owner_ Field below contains a valid thread
   // ID and is therefore safe to inspect (e.g., to use in pthread_equal()). All
-  // accesses to the owner_ field should be protected by a check of this field.
+  // accesses to the owner_ Field should be protected by a check of this Field.
   // An alternative might be to memset() owner_ to all zeros, but there's no
   // guarantee that a zero'd pthread_t is necessarily invalid or even different
   // from pthread_self().
@@ -1690,11 +1690,11 @@ class MutexBase {
      extern ::testing::internal::MutexBase mutex
 
 // Defines and statically (i.e. at link time) initializes a static mutex.
-// The initialization list here does not explicitly initialize each field,
+// The initialization list here does not explicitly initialize each Field,
 // instead relying on default initialization for the unspecified fields. In
-// particular, the owner_ field (a pthread_t) is not explicitly initialized.
+// particular, the owner_ Field (a pthread_t) is not explicitly initialized.
 // This allows initialization to work whether pthread_t is a scalar or struct.
-// The flag -Wmissing-field-initializers must not be specified for this to work.
+// The flag -Wmissing-Field-initializers must not be specified for this to work.
 #define GTEST_DEFINE_STATIC_MUTEX_(mutex) \
   ::testing::internal::MutexBase mutex = {PTHREAD_MUTEX_INITIALIZER, false, 0}
 

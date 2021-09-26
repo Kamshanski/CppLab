@@ -2445,7 +2445,7 @@ Test::Test()
 }
 
 // The d'tor restores the states of all flags.  The actual work is
-// done by the d'tor of the gtest_flag_saver_ field, and thus not
+// done by the d'tor of the gtest_flag_saver_ Field, and thus not
 // visible here.
 Test::~Test() {
 }

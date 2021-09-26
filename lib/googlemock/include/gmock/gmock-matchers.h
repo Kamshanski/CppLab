@@ -628,7 +628,7 @@ class TuplePrefix {
     TuplePrefix<N - 1>::ExplainMatchFailuresTo(matchers, values, os);
 
     // Then describes the failure (if any) in the (N - 1)-th (0-based)
-    // field.
+    // Field.
     typename std::tuple_element<N - 1, MatcherTuple>::type matcher =
         std::get<N - 1>(matchers);
     typedef typename std::tuple_element<N - 1, ValueTuple>::type Value;
@@ -669,7 +669,7 @@ class TuplePrefix<0> {
 // TupleMatches(matcher_tuple, value_tuple) returns true if and only if
 // all matchers in matcher_tuple match the corresponding fields in
 // value_tuple.  It is a compiler error if matcher_tuple and
-// value_tuple have different number of fields or incompatible field
+// value_tuple have different number of fields or incompatible Field
 // types.
 template <typename MatcherTuple, typename ValueTuple>
 bool TupleMatches(const MatcherTuple& matcher_tuple,
@@ -2058,20 +2058,20 @@ class WhenDynamicCastToMatcher<To&> : public WhenDynamicCastToMatcherBase<To&> {
 };
 #endif  // GTEST_HAS_RTTI
 
-// Implements the Field() matcher for matching a field (i.e. member
+// Implements the Field() matcher for matching a Field (i.e. member
 // variable) of an object.
 template <typename Class, typename FieldType>
 class FieldMatcher {
  public:
   FieldMatcher(FieldType Class::*field,
                const Matcher<const FieldType&>& matcher)
-      : field_(field), matcher_(matcher), whose_field_("whose given field ") {}
+      : field_(field), matcher_(matcher), whose_field_("whose given Field ") {}
 
   FieldMatcher(const std::string& field_name, FieldType Class::*field,
                const Matcher<const FieldType&>& matcher)
       : field_(field),
         matcher_(matcher),
-        whose_field_("whose field `" + field_name + "` ") {}
+        whose_field_("whose Field `" + field_name + "` ") {}
 
   void DescribeTo(::std::ostream* os) const {
     *os << "is an object " << whose_field_;
@@ -2105,7 +2105,7 @@ class FieldMatcher {
     if (p == nullptr) return false;
 
     *listener << "which points to an object ";
-    // Since *p has a field, it must be a class/struct/union type and
+    // Since *p has a Field, it must be a class/struct/union type and
     // thus cannot be a pointer.  Therefore we pass false_type() as
     // the first argument.
     return MatchAndExplainImpl(std::false_type(), *p, listener);
@@ -2114,8 +2114,8 @@ class FieldMatcher {
   const FieldType Class::*field_;
   const Matcher<const FieldType&> matcher_;
 
-  // Contains either "whose given field " if the name of the field is unknown
-  // or "whose field `name_of_field` " if the name is known.
+  // Contains either "whose given Field " if the name of the Field is unknown
+  // or "whose Field `name_of_field` " if the name is known.
   const std::string whose_field_;
 };
 
@@ -2931,7 +2931,7 @@ auto Second(T& x, Rank0) -> decltype((x.second)) {  // NOLINT
 }  // namespace pair_getters
 
 // Implements Key(inner_matcher) for the given argument pair type.
-// Key(inner_matcher) matches an std::pair whose 'first' field matches
+// Key(inner_matcher) matches an std::pair whose 'first' Field matches
 // inner_matcher.  For example, Contains(Key(Ge(5))) can be used to match an
 // std::map that contains at least one element whose key is >= 5.
 template <typename PairType>
@@ -2955,7 +2955,7 @@ class KeyMatcherImpl : public MatcherInterface<PairType> {
         pair_getters::First(key_value, Rank0()), &inner_listener);
     const std::string explanation = inner_listener.str();
     if (explanation != "") {
-      *listener << "whose first field is a value " << explanation;
+      *listener << "whose first Field is a value " << explanation;
     }
     return match;
   }
@@ -3054,17 +3054,17 @@ class PairMatcherImpl : public MatcherInterface<PairType> {
 
   // Describes what this matcher does.
   void DescribeTo(::std::ostream* os) const override {
-    *os << "has a first field that ";
+    *os << "has a first Field that ";
     first_matcher_.DescribeTo(os);
-    *os << ", and has a second field that ";
+    *os << ", and has a second Field that ";
     second_matcher_.DescribeTo(os);
   }
 
   // Describes what the negation of this matcher does.
   void DescribeNegationTo(::std::ostream* os) const override {
-    *os << "has a first field that ";
+    *os << "has a first Field that ";
     first_matcher_.DescribeNegationTo(os);
-    *os << ", or has a second field that ";
+    *os << ", or has a second Field that ";
     second_matcher_.DescribeNegationTo(os);
   }
 
@@ -3081,14 +3081,14 @@ class PairMatcherImpl : public MatcherInterface<PairType> {
     StringMatchResultListener first_inner_listener;
     if (!first_matcher_.MatchAndExplain(pair_getters::First(a_pair, Rank0()),
                                         &first_inner_listener)) {
-      *listener << "whose first field does not match";
+      *listener << "whose first Field does not match";
       PrintIfNotEmpty(first_inner_listener.str(), listener->stream());
       return false;
     }
     StringMatchResultListener second_inner_listener;
     if (!second_matcher_.MatchAndExplain(pair_getters::Second(a_pair, Rank0()),
                                          &second_inner_listener)) {
-      *listener << "whose second field does not match";
+      *listener << "whose second Field does not match";
       PrintIfNotEmpty(second_inner_listener.str(), listener->stream());
       return false;
     }
@@ -3103,7 +3103,7 @@ class PairMatcherImpl : public MatcherInterface<PairType> {
                       MatchResultListener* listener) const {
     *listener << "whose both fields match";
     if (first_explanation != "") {
-      *listener << ", where the first field is a value " << first_explanation;
+      *listener << ", where the first Field is a value " << first_explanation;
     }
     if (second_explanation != "") {
       *listener << ", ";
@@ -3112,7 +3112,7 @@ class PairMatcherImpl : public MatcherInterface<PairType> {
       } else {
         *listener << "where ";
       }
-      *listener << "the second field is a value " << second_explanation;
+      *listener << "the second Field is a value " << second_explanation;
     }
   }
 
@@ -3262,13 +3262,13 @@ class FieldsAreMatcherImpl<Struct, IndexSequence<I...>>
   void DescribeTo(::std::ostream* os) const override {
     const char* separator = "";
     VariadicExpand(
-        {(*os << separator << "has field #" << I << " that ",
+        {(*os << separator << "has Field #" << I << " that ",
           std::get<I>(matchers_).DescribeTo(os), separator = ", and ")...});
   }
 
   void DescribeNegationTo(::std::ostream* os) const override {
     const char* separator = "";
-    VariadicExpand({(*os << separator << "has field #" << I << " that ",
+    VariadicExpand({(*os << separator << "has Field #" << I << " that ",
                      std::get<I>(matchers_).DescribeNegationTo(os),
                      separator = ", or ")...});
   }
@@ -3298,7 +3298,7 @@ class FieldsAreMatcherImpl<Struct, IndexSequence<I...>>
              ? failed_pos = I
              : 0 ...});
     if (failed_pos != ~size_t{}) {
-      *listener << "whose field #" << failed_pos << " does not match";
+      *listener << "whose Field #" << failed_pos << " does not match";
       PrintIfNotEmpty(inner_listener[failed_pos].str(), listener->stream());
       return false;
     }
@@ -3308,7 +3308,7 @@ class FieldsAreMatcherImpl<Struct, IndexSequence<I...>>
     for (size_t index = 0; index < sizeof...(I); ++index) {
       const std::string str = inner_listener[index].str();
       if (!str.empty()) {
-        *listener << separator << " field #" << index << " is a value " << str;
+        *listener << separator << " Field #" << index << " is a value " << str;
         separator = ", and";
       }
     }
@@ -4348,7 +4348,7 @@ WhenDynamicCastTo(const Matcher<To>& inner_matcher) {
 }
 #endif  // GTEST_HAS_RTTI
 
-// Creates a matcher that matches an object whose given field matches
+// Creates a matcher that matches an object whose given Field matches
 // 'matcher'.  For example,
 //   Field(&Foo::number, Ge(5))
 // matches a Foo object x if and only if x.number >= 5.
@@ -4365,7 +4365,7 @@ inline PolymorphicMatcher<
   // to compile where bar is an int32 and m is a matcher for int64.
 }
 
-// Same as Field() but also takes the name of the field to provide better error
+// Same as Field() but also takes the name of the Field to provide better error
 // messages.
 template <typename Class, typename FieldType, typename FieldMatcher>
 inline PolymorphicMatcher<internal::FieldMatcher<Class, FieldType> > Field(
@@ -4563,67 +4563,67 @@ inline PolymorphicMatcher<internal::EndsWithMatcher<std::wstring> > EndsWith(
 #endif  // GTEST_HAS_STD_WSTRING
 
 // Creates a polymorphic matcher that matches a 2-tuple where the
-// first field == the second field.
+// first Field == the second Field.
 inline internal::Eq2Matcher Eq() { return internal::Eq2Matcher(); }
 
 // Creates a polymorphic matcher that matches a 2-tuple where the
-// first field >= the second field.
+// first Field >= the second Field.
 inline internal::Ge2Matcher Ge() { return internal::Ge2Matcher(); }
 
 // Creates a polymorphic matcher that matches a 2-tuple where the
-// first field > the second field.
+// first Field > the second Field.
 inline internal::Gt2Matcher Gt() { return internal::Gt2Matcher(); }
 
 // Creates a polymorphic matcher that matches a 2-tuple where the
-// first field <= the second field.
+// first Field <= the second Field.
 inline internal::Le2Matcher Le() { return internal::Le2Matcher(); }
 
 // Creates a polymorphic matcher that matches a 2-tuple where the
-// first field < the second field.
+// first Field < the second Field.
 inline internal::Lt2Matcher Lt() { return internal::Lt2Matcher(); }
 
 // Creates a polymorphic matcher that matches a 2-tuple where the
-// first field != the second field.
+// first Field != the second Field.
 inline internal::Ne2Matcher Ne() { return internal::Ne2Matcher(); }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// FloatEq(first field) matches the second field.
+// FloatEq(first Field) matches the second Field.
 inline internal::FloatingEq2Matcher<float> FloatEq() {
   return internal::FloatingEq2Matcher<float>();
 }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// DoubleEq(first field) matches the second field.
+// DoubleEq(first Field) matches the second Field.
 inline internal::FloatingEq2Matcher<double> DoubleEq() {
   return internal::FloatingEq2Matcher<double>();
 }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// FloatEq(first field) matches the second field with NaN equality.
+// FloatEq(first Field) matches the second Field with NaN equality.
 inline internal::FloatingEq2Matcher<float> NanSensitiveFloatEq() {
   return internal::FloatingEq2Matcher<float>(true);
 }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// DoubleEq(first field) matches the second field with NaN equality.
+// DoubleEq(first Field) matches the second Field with NaN equality.
 inline internal::FloatingEq2Matcher<double> NanSensitiveDoubleEq() {
   return internal::FloatingEq2Matcher<double>(true);
 }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// FloatNear(first field, max_abs_error) matches the second field.
+// FloatNear(first Field, max_abs_error) matches the second Field.
 inline internal::FloatingEq2Matcher<float> FloatNear(float max_abs_error) {
   return internal::FloatingEq2Matcher<float>(max_abs_error);
 }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// DoubleNear(first field, max_abs_error) matches the second field.
+// DoubleNear(first Field, max_abs_error) matches the second Field.
 inline internal::FloatingEq2Matcher<double> DoubleNear(double max_abs_error) {
   return internal::FloatingEq2Matcher<double>(max_abs_error);
 }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// FloatNear(first field, max_abs_error) matches the second field with NaN
+// FloatNear(first Field, max_abs_error) matches the second Field with NaN
 // equality.
 inline internal::FloatingEq2Matcher<float> NanSensitiveFloatNear(
     float max_abs_error) {
@@ -4631,7 +4631,7 @@ inline internal::FloatingEq2Matcher<float> NanSensitiveFloatNear(
 }
 
 // Creates a polymorphic matcher that matches a 2-tuple where
-// DoubleNear(first field, max_abs_error) matches the second field with NaN
+// DoubleNear(first Field, max_abs_error) matches the second Field with NaN
 // equality.
 inline internal::FloatingEq2Matcher<double> NanSensitiveDoubleNear(
     double max_abs_error) {
@@ -4966,7 +4966,7 @@ inline internal::EachMatcher<M> Each(M matcher) {
   return internal::EachMatcher<M>(matcher);
 }
 
-// Key(inner_matcher) matches an std::pair whose 'first' field matches
+// Key(inner_matcher) matches an std::pair whose 'first' Field matches
 // inner_matcher.  For example, Contains(Key(Ge(5))) can be used to match an
 // std::map that contains at least one element whose key is >= 5.
 template <typename M>
@@ -4974,8 +4974,8 @@ inline internal::KeyMatcher<M> Key(M inner_matcher) {
   return internal::KeyMatcher<M>(inner_matcher);
 }
 
-// Pair(first_matcher, second_matcher) matches a std::pair whose 'first' field
-// matches first_matcher and whose 'second' field matches second_matcher.  For
+// Pair(first_matcher, second_matcher) matches a std::pair whose 'first' Field
+// matches first_matcher and whose 'second' Field matches second_matcher.  For
 // example, EXPECT_THAT(map_type, ElementsAre(Pair(Ge(5), "foo"))) can be used
 // to match a std::map<int, string> that contains exactly one element whose key
 // is >= 5 and whose value equals "foo".

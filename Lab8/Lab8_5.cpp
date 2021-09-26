@@ -1,4 +1,4 @@
-#include "../utils.cpp"
+#include "../utilities.cpp"
 using namespace std;
 /*
 Описать подходящую подпрограмму-функцию вычисления суммы элементов

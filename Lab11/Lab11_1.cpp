@@ -1,4 +1,4 @@
-#include "../utils.cpp"
+#include "../utilities.cpp"
 using namespace std;
 /*
 Описать рекурсивную функцию для вычисления n –го члена ряда 1, 2, 4, 8,….256

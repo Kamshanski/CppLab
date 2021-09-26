@@ -1,4 +1,4 @@
-#include "../utils.cpp"
+#include "../utilities.cpp"
 using namespace std;
 /*
 Оформить функцию поиска количества нулевых элементов массива. В

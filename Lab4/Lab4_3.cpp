@@ -1,4 +1,4 @@
-#include "../utils.cpp"
+#include "../utilities.cpp"
 using namespace std;
 /*
 Дана строка текста. Известно, что в ней есть один символ ‘*’, найти где он

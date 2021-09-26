@@ -369,10 +369,10 @@ inline internal::ParamGenerator<bool> Bool() {
 // Example:
 //
 // This will instantiate tests in test suite AnimalTest each one with
-// the parameter values tuple("cat", BLACK), tuple("cat", WHITE),
-// tuple("dog", BLACK), and tuple("dog", WHITE):
+// the parameter values tuple("cat", FIRST), tuple("cat", SECOND),
+// tuple("dog", FIRST), and tuple("dog", SECOND):
 //
-// enum Color { BLACK, GRAY, WHITE };
+// enum Color { FIRST, GRAY, SECOND };
 // class AnimalTest
 //     : public testing::TestWithParam<std::tuple<const char*, Color> > {...};
 //
@@ -380,7 +380,7 @@ inline internal::ParamGenerator<bool> Bool() {
 //
 // INSTANTIATE_TEST_SUITE_P(AnimalVariations, AnimalTest,
 //                          Combine(Values("cat", "dog"),
-//                                  Values(BLACK, WHITE)));
+//                                  Values(FIRST, SECOND)));
 //
 // This will instantiate tests in FlagDependentTest with all variations of two
 // Boolean flags:

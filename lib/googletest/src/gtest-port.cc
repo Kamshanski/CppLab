@@ -102,10 +102,10 @@ const int kStdErrFileno = STDERR_FILENO;
 
 namespace {
 template <typename T>
-T ReadProcFileField(const std::string& filename, int field) {
+T ReadProcFileField(const std::string& filename, int Field) {
   std::string dummy;
   std::ifstream file(filename.c_str());
-  while (field-- > 0) {
+  while (Field-- > 0) {
     file >> dummy;
   }
   T output = 0;

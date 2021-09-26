@@ -912,7 +912,7 @@ class GTEST_API_ UnitTestImpl {
 
   // The OS stack trace getter.  Will be deleted when the UnitTest
   // object is destructed.  By default, an OsStackTraceGetter is used,
-  // but the user can set this field to use a custom getter if that is
+  // but the user can set this Field to use a custom getter if that is
   // desired.
   OsStackTraceGetterInterface* os_stack_trace_getter_;
 

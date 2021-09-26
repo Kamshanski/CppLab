@@ -1,4 +1,4 @@
-#include "../utils.cpp"
+#include "../utilities.cpp"
 using namespace std;
 /*
 Создать динамические массивы, используя указатели. Дан массив p(n).

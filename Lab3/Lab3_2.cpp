@@ -1,4 +1,4 @@
-#include "../utils.cpp"
+#include "../utilities.cpp"
 using namespace std;
 /*
 Даны 3 слова - ваши Имя, Отчество, Фамилия в 3-х разных переменных. =

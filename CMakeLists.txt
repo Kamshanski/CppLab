@@ -75,11 +75,31 @@ add_executable(Lab15 Lab15/Lab15.cpp)
 add_executable(Lab16_1 Lab16/Lab16_1.cpp)
 add_executable(Lab16_2 Lab16/Lab16_2.cpp)
 
+#add_executable(ConsoleReversi
+#        reversi_game_engine/Snapshot.cpp
+#        reversi_game_engine/Chip.cpp
+#        reversi_game_engine/Field.cpp
+#        reversi_game_engine/utils.cpp
+#        reversi_game_engine/ReversiEngine.cpp
+#        reversi_game/mainGame.cpp)
+
+include_directories("reversi/realizations")
+include_directories("reversi/engine")
+include_directories("reversi/engine/board")
+include_directories("reversi/engine/components")
+include_directories("reversi/player")
+include_directories("reversi/engine/utils")
+include_directories("reversi")
+add_executable(ReversiTest reversi/realizations/TestConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp)
+add_executable(ReversiAI reversi/realizations/AiConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp)
+add_executable(ReversiHuman reversi/realizations/HumanConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp)
 
 add_subdirectory(lib)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-add_executable(GTest LibraryTests.cpp)
+add_executable(GTest
+        LibraryTests.cpp)
+
 target_link_libraries(GTest gtest gtest_main)
 target_link_libraries(GTest gmock gmock_main)
 

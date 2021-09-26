@@ -1,4 +1,4 @@
-#include "../utils.cpp"
+#include "../utilities.cpp"
 using namespace std;
 /*
 Дано 2 файла вещественных чисел а1.txt и а2.txt. Найти сумму
