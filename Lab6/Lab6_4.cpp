@@ -47,7 +47,7 @@ Album9 Natalya Style3 2021 45 21
     cout << "\nEnter author search query: ";
     cin >> query;
 
-    auto* filtered = new CD[10];
+    auto filtered = new CD[10];
     int filteredSize = 0;
     for (int i = 0; i < 10; ++i) {
         if (disks[i].author.compare(0, query.size(), query) == 0) {
@@ -67,6 +67,7 @@ Album9 Natalya Style3 2021 45 21
     } else {
         cout << "No people with name that starts with " << query;
     }
+    delete[] filtered;
 
 
     return 0;
