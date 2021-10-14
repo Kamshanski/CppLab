@@ -66,9 +66,9 @@ add_executable(Lab12_2 Lab12/Lab12_2.cpp)
 add_executable(Lab12_3 Lab12/Lab12_3.cpp)
 add_executable(Lab12_4 Lab12/Lab12_4.cpp)
 
-add_executable(Lab13 Lab13/Lab13.cpp)
 
 add_executable(Lab14 Lab14/Lab14.cpp)
+add_executable(Lab13 Lab13/Lab13.cpp)
 
 add_executable(Lab15 Lab15/Lab15.cpp)
 
@@ -83,6 +83,10 @@ add_executable(Lab16_2 Lab16/Lab16_2.cpp)
 #        reversi_game_engine/ReversiEngine.cpp
 #        reversi_game/mainGame.cpp)
 
+
+add_executable(TestWin TestWin.cpp)
+
+
 include_directories("reversi/realizations")
 include_directories("reversi/engine")
 include_directories("reversi/engine/board")
@@ -90,9 +94,11 @@ include_directories("reversi/engine/components")
 include_directories("reversi/player")
 include_directories("reversi/engine/utils")
 include_directories("reversi")
-add_executable(ReversiTest reversi/realizations/TestConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp)
-add_executable(ReversiAI reversi/realizations/AiConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp)
+add_executable(ReversiTest reversi/realizations/TestConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp )
+add_executable(ReversiAI reversi/realizations/AiConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp )
 add_executable(ReversiHuman reversi/realizations/HumanConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp)
+add_executable(ReversiWindowApp reversi/realizations/ui/WindowApp.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ui/components/Window.cpp  reversi/realizations/ui/components/Label.cpp reversi/realizations/ui/components/View.cpp reversi/realizations/ui/components/Button.cpp )
+#add_executable(ReversiWindowApp reversi/realizations/HumanConsoleReversi.cpp reversi/includeAll.h reversi/engine/board/Field.cpp reversi/engine/ReversiEngine.cpp reversi/engine/components/Chip.cpp reversi/engine/components/GameListener.cpp reversi/engine/components/Point.cpp reversi/player/AiPlayer.cpp reversi/player/HumanPlayer.cpp reversi/engine/components/Player.cpp reversi/engine/utils/constants.h reversi/engine/utils/game_exceptions.h reversi/realizations/ConsoleReversi.cpp  reversi/realizations/ui/components/Window.cpp reversi/realizations/ui/components/View.cpp reversi/realizations/ui/components/Label.cpp reversi/realizations/ui/components/Button.cpp  reversi/realizations/ui/WindowApp.cpp )
 
 add_subdirectory(lib)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})

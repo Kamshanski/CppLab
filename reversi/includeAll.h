@@ -8,6 +8,7 @@
 #include "vector"
 #include "array"
 #include "string"
+#include "windows.h"
 
 #include "utilities.h"
 #include "Chip.h"
@@ -21,3 +22,9 @@
 #include "HumanPlayer.h"
 #include "AiPlayer.h"
 #include "ConsoleReversi.h"
+
+#include "ui/components/View.h"
+#include "ui/components/Label.h"
+#include "ui/components/Window.h"
+#include "ui/components/OnButtonListener.h"
+#include "ui/components/Button.h"
