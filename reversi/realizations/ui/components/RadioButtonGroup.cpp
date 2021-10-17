@@ -2,7 +2,7 @@
 #include "RadioButtonGroup.h"
 
 
-const COLORREF RadioButtonGroup::SELECTED = Color::BLACK;
+const COLORREF RadioButtonGroup::SELECTED = Color::GREEN;
 const COLORREF RadioButtonGroup::CLEAR = Color::WHITE;
 const COLORREF RadioButtonGroup::LINE_COLOR = Color::BLACK;
 const int RadioButtonGroup::HORIZONTAL_GAP = 6;

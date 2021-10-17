@@ -7,6 +7,7 @@ public:
     static const COLORREF BLACK;
     static const COLORREF WHITE;
     static const COLORREF YELLOW;
+    static const COLORREF GREEN;
 };
 
 

@@ -29,11 +29,10 @@ void redrawRectangle(HWND hwnd, RECT rect) {
 struct PlayerColorListener : RadioButtonGroupListener {
     bool onSelected(int idNew, int idPrev, vector<string> &options) override {
         if (idNew == 0) {
-            engine->setFirstBlackSecondWhite();
+            return engine->setFirstBlackSecondWhite();
         } else {
-            engine->setFirstWhiteSecondBlack();
+            return engine->setFirstWhiteSecondBlack();
         }
-        return true;
     }
 };
 
@@ -96,7 +95,9 @@ public:
         ostringstream o;
         o << "Game started.";
         lGameLog->addLine(o.str());
+        btnStartStop->setText("FINISH");
         redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+        redrawRectangle(MAIN_WINDOW_HWND, btnStartStop->getViewRect());
     }
 
     void onFinished(ReversiEngine *engine, Field *snap) override {
@@ -118,7 +119,9 @@ public:
         }
         lGameLog->addLine(o.str());
         lGameLog->addLine("Press <<START>> to start the game!");
+        btnStartStop->setText("START");
         redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+        redrawRectangle(MAIN_WINDOW_HWND, btnStartStop->getViewRect());
     }
 
     void onError(ReversiEngine *engine, exception &error) override {
@@ -159,7 +162,7 @@ void initApp(HWND parent) {
     rbgSecondPlayer = new RadioButtonGroup(500, 200, {"AI", "Human"});
     rbgSecondPlayer->setListener(new SecondPlayerListener());
 
-    lGameLog = new MultilineLabel(60, bfField->getViewRect().bottom + 10, 450, 40, 4);
+    lGameLog = new MultilineLabel(60, bfField->getViewRect().bottom + 10, 800, 40, 4);
     lGameLog->addLine("Press <<START>> to start the game!");
 
     lScore = new Label(60, 20, 450, 40, true, false);

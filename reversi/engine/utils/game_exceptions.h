@@ -12,7 +12,7 @@ struct IllegalGameStateException : public std::exception {
 
     const char* what() const noexcept override {
         ostringstream o;
-        if (isStarted) {
+        if (!isStarted) {
             o << "Game is not started yet: " << msg;
         } else {
             o << "Game is started already: " << msg;

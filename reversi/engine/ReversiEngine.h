@@ -53,8 +53,8 @@ public:
     void removeObserver();
     bool isStarted() const;
     int getMoveCounter() const;
-    void setFirstBlackSecondWhite();
-    void setFirstWhiteSecondBlack();
+    bool setFirstBlackSecondWhite();
+    bool setFirstWhiteSecondBlack();
     PointsList* getAvailableMoves();
     PointsList* getAvailableAimsForMove(Point point);
     int getPlayerNumber(Chip* chip);

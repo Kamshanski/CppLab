@@ -270,21 +270,23 @@ int ReversiEngine::getMoveCounter() const {
     return moveCounter;
 }
 
-void ReversiEngine::setFirstBlackSecondWhite() {
+bool ReversiEngine::setFirstBlackSecondWhite() {
     if (isStarted()) {
         tryToNotifyOnError(gameStateException());
-        return;
+        return false;
     }
     player1 = Chip::BLACK;
     player2 = Chip::WHITE;
+    return true;
 }
-void ReversiEngine::setFirstWhiteSecondBlack() {
+bool ReversiEngine::setFirstWhiteSecondBlack() {
     if (isStarted()) {
         tryToNotifyOnError(gameStateException());
-        return;
+        return false;
     }
     player1 = Chip::WHITE;
     player2 = Chip::BLACK;
+    return true;
 }
 
 ReversiEngine::ReversiEngine() {
