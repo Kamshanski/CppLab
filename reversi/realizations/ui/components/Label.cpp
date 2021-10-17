@@ -32,3 +32,7 @@ RECT Label::getViewRect() const {
     return rect;
 }
 
+void Label::clearText() {
+    text = "";
+}
+
