@@ -32,7 +32,7 @@ ButtonsField::ButtonsField(ButtonFieldListener* listener) : listener(listener){
     endX = endY = BUTTON_FIELD_OFFSET + BTN_FIELD_SIZE * (ChipButton::SIZE + ButtonsField::GAP);
 }
 
-void ButtonsField::onPaint(HDC hdc) {
+void ButtonsField::onPaint(HDC hdc) const {
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
         for (int j = 0; j < BTN_FIELD_SIZE; ++j) {
             ChipButton* btn = getButton(i, j);
@@ -91,6 +91,8 @@ pair<int, int> ButtonsField::findEnteredButton(int pX, int pY) {
     }
     return {-1 ,-1};
 }
+
+ChipButton *ButtonsField::getButton(int i, int j) const { return buttons[j][i]; }
 
 
 

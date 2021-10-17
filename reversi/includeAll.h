@@ -30,6 +30,8 @@
 #include "AiPlayer.h"
 #include "ConsoleReversi.h"
 
+#include "ui/components/Drawable.h"
+#include "ui/components/Clickable.h"
 #include "ui/components/Palette.h"
 #include "ui/components/Label.h"
 #include "ui/components/ChipButton.h"

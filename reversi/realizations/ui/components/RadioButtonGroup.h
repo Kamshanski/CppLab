@@ -2,7 +2,7 @@
 #include "includeAll.h"
 struct RadioButtonGroupListener;
 
-class RadioButtonGroup {
+class RadioButtonGroup : public Drawable, public Clickable {
     static const COLORREF SELECTED;
     static const COLORREF CLEAR;
     static const COLORREF LINE_COLOR;
@@ -23,8 +23,8 @@ public:
 
     void setListener(RadioButtonGroupListener *listener);
 
-    void onPaint(HDC hdc) const;
-    bool onClick(int pX, int pY);
+    void onPaint(HDC hdc) const override;
+    bool onClick(int pX, int pY) override;
     int getSelection() const;
     vector<string>& getOptions();
 private:
@@ -38,9 +38,3 @@ struct RadioButtonGroupListener {
     /** @return true if accept selection */
     virtual bool onSelected(int idNew, int idPrev, vector<string>& options) = 0;
 };
-
-
-/*
-DrawText (hdc, TEXT ("Native Windows Development with CygWin and CLion."),
-          -1, &rect, DT_SINGLELINE | DT_CENTER | DT_VCENTER) ;
-          */

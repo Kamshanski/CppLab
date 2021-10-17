@@ -1,6 +1,7 @@
 #pragma once
 #include "includeAll.h"
-class ButtonFieldListenerImpl : public ButtonFieldListener {
+struct ButtonFieldListenerImpl : public ButtonFieldListener {
+private:
     ReversiEngine* engine;
 
 public:

@@ -1,7 +1,7 @@
 #pragma once
 #include "includeAll.h"
 
-class ChipButton {
+class ChipButton : public Drawable  {
 public:
     static const COLORREF SELECTED;
     static const COLORREF CLEAR;
@@ -26,7 +26,7 @@ private:
 public:
     ChipButton(int x, int y);
 
-    void onPaint(HDC hdc) const;
+    void onPaint(HDC hdc) const override;
 
     bool containsPoint(int pX, int pY);
 

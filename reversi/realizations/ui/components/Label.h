@@ -1,6 +1,6 @@
 #pragma once
 #include "includeAll.h"
-class Label {
+class Label : public Drawable {
     string text;
     int x, y;
     int width, height;
@@ -9,11 +9,9 @@ class Label {
 public:
     Label(int x, int y, int width, int height);
 
-    void onPaint(HDC hdc) const;
+    void onPaint(HDC hdc) const override;
     void setColor(COLORREF chipColor);
 
     void setText(string text);
-
-
 };
 

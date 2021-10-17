@@ -8,21 +8,65 @@ const char g_szClassName[] = "Reversi Game";
 
 ButtonsField* bfField = nullptr;
 RadioButtonGroup* rbgPlayerColor = nullptr;
-RadioButtonGroup* rbgSecondPlayer = nullptr;s
+RadioButtonGroup* rbgSecondPlayer = nullptr;
+Label* lPlayerColor = nullptr;
+Label* lSecondPlayer = nullptr;
+Label* lGameMessages = nullptr;
 
+vector<Drawable*> drawables;
+vector<Clickable*> clickables;
+
+
+//---------------------------
+
+struct PlayerColorListener : RadioButtonGroupListener {
+    bool onSelected(int idNew, int idPrev, vector<string> &options) override {
+        return true;
+    }
+};
+
+struct SecondPlayerListener : RadioButtonGroupListener {
+    bool onSelected(int idNew, int idPrev, vector<string> &options) override {
+        return true;
+    }
+};
 
 //---------------------------
 
 void initApp(HWND parent) {
     // init button field indexes
     bfField = new ButtonsField(new ButtonFieldListenerImpl(nullptr));
-    rbgPlayerColor = new RadioButtonGroup(500, 20, {"Option 1", "Very long option two"});
+
+    lPlayerColor = new Label(500, 60, 150, 20);
+    lPlayerColor->setText("Your color:");
+    rbgPlayerColor = new RadioButtonGroup(500, 90, {"Black (goes first)", "White"});
+    rbgPlayerColor->setListener(new PlayerColorListener());
+
+    lSecondPlayer = new Label(500, 170, 150, 20);
+    lSecondPlayer->setText("Second player:");
+    rbgSecondPlayer = new RadioButtonGroup(500, 200, {"AI", "Human"});
+    rbgSecondPlayer->setListener(new SecondPlayerListener());
+
+    lGameMessages = new Label(60, 500, 450, 40);
+    lGameMessages->setText("Hi! Start the game!");
+
+    drawables.push_back(bfField);
+    drawables.push_back(lPlayerColor);
+    drawables.push_back(rbgPlayerColor);
+    drawables.push_back(lSecondPlayer);
+    drawables.push_back(rbgSecondPlayer);
+    drawables.push_back(lGameMessages);
+
+    clickables.push_back(rbgPlayerColor);
+    clickables.push_back(rbgSecondPlayer);
+    clickables.push_back(bfField);
 }
 
 bool processClick(int pX, int pY) {
     bool needToRedraw = false;
-    needToRedraw |= rbgPlayerColor->onClick(pX, pY);
     needToRedraw |= bfField->onClick(pX, pY);
+    needToRedraw |= rbgPlayerColor->onClick(pX, pY);
+    needToRedraw |= rbgSecondPlayer->onClick(pX, pY);
 
 //    string text = ("You pressed button " + to_string(LOWORD(btnId)));
 //    MessageBox(parent, text.c_str(), "MessageBox", MB_OK | MB_ICONWARNING);
@@ -41,9 +85,9 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
             HDC hdc = BeginPaint(hwnd, &ps);
 
             // paint buttons
-            bfField->onPaint(hdc);
-            rbgPlayerColor->onPaint(hdc);
-
+            for (Drawable* v: drawables) {
+                v->onPaint(hdc);
+            }
             EndPaint(hwnd, &ps);
             useDefaultProc = false;
             break;
@@ -51,12 +95,16 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
         case WM_MOUSEMOVE: {
             int pX = GET_X_LPARAM(lParam);
             int pY = GET_Y_LPARAM(lParam);
-            bool hasChanges = bfField->onMouseMove(pX, pY);
-            if (hasChanges) {
-                RECT windowRect;
-                GetClientRect(hwnd, &windowRect);
-                InvalidateRect(hwnd, &windowRect, NULL);
+
+            for(Clickable* view: clickables) {
+                if (view->onClick(pX, pY))
+                    break;
             }
+
+            RECT windowRect;
+            GetClientRect(hwnd, &windowRect);
+            InvalidateRect(hwnd, &windowRect, NULL);
+
             useDefaultProc = false;
             break;
         }

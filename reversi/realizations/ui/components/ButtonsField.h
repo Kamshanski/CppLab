@@ -2,7 +2,7 @@
 #include "includeAll.h"
 
 
-class ButtonsField {
+class ButtonsField : public Drawable, public Clickable {
 public:
     // constants
     static const int BUTTON_FIELD_OFFSET;
@@ -23,13 +23,13 @@ private:
     void setButton(int i, int j, ChipButton* btn) { buttons[j][i] = btn; }
 
 public:
-    void onPaint(HDC hdc);
+    void onPaint(HDC hdc) const override;
     bool onMouseMove(int pX, int pY);
-    bool onClick(int pX, int pY);
+    bool onClick(int pX, int pY) override;
 
 
 public:
     ButtonsField(ButtonFieldListener* listener);
 
-    ChipButton* getButton(int i, int j) { return buttons[j][i]; }
+    ChipButton* getButton(int i, int j) const;
 };
