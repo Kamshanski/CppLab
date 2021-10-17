@@ -10,32 +10,32 @@ const int ButtonsField::GAP = 2;
 
 ButtonsField::ButtonsField(ButtonFieldListener* listener) : listener(listener){
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
-        buttons[i] = new Button*[BTN_FIELD_SIZE];
+        buttons[i] = new ChipButton*[BTN_FIELD_SIZE];
     }
 
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
         for (int j = 0; j < BTN_FIELD_SIZE; ++j) {
-            int x = BUTTON_FIELD_OFFSET + j * (Button::SIZE + GAP);
+            int x = BUTTON_FIELD_OFFSET + j * (ChipButton::SIZE + GAP);
             if (j > 0) {
                 x += (j - 1) * GAP;
             }
 
-            int y = BUTTON_FIELD_OFFSET + i * (Button::SIZE + GAP);
+            int y = BUTTON_FIELD_OFFSET + i * (ChipButton::SIZE + GAP);
             if (i > 0) {
                 y += (i - 1) * GAP;
             }
 
-            setButton(i, j, new Button(x, y));
+            setButton(i, j, new ChipButton(x, y));
         }
     }
     startX = startY = BUTTON_FIELD_OFFSET;
-    endX = endY = BUTTON_FIELD_OFFSET + BTN_FIELD_SIZE * (Button::SIZE + ButtonsField::GAP);
+    endX = endY = BUTTON_FIELD_OFFSET + BTN_FIELD_SIZE * (ChipButton::SIZE + ButtonsField::GAP);
 }
 
 void ButtonsField::onPaint(HDC hdc) {
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
         for (int j = 0; j < BTN_FIELD_SIZE; ++j) {
-            Button* btn = getButton(i, j);
+            ChipButton* btn = getButton(i, j);
             btn->onPaint(hdc);
         }
     }
@@ -73,9 +73,9 @@ bool ButtonsField::onMouseMove(int pX, int pY) {
 bool ButtonsField::onClick(int pX, int pY) {
     pair<int, int> indexes = findEnteredButton(pX, pY);
     if (indexes.first > -1) {
-        Button* btn = getButton(indexes.first, indexes.second);
+        ChipButton* btn = getButton(indexes.first, indexes.second);
         btn->setChipVisibility(!btn->isChipVisible());
-        btn->setChipColor(Button::CHIP_WHITE);
+        btn->setChipColor(ChipButton::CHIP_WHITE);
         return true;
     }
     return false;

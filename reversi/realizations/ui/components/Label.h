@@ -1,12 +1,18 @@
 #pragma once
 #include "includeAll.h"
-class Label : public View {
+class Label {
+    string text;
+    int x, y;
+    int width, height;
+    RECT rect;
+    COLORREF color = Color::BLACK;
 public:
-    Label(size_t id, Window* parent, int height, int width, int x, int y, const string &text);
+    Label(int x, int y, int width, int height);
 
-    string getText() const;
+    void onPaint(HDC hdc) const;
+    void setColor(COLORREF chipColor);
 
-    void setText(string &text);
+    void setText(string text);
 
 
 };

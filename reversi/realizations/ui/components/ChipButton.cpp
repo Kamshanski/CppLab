@@ -1,5 +1,5 @@
 #include "includeAll.h"
-#include "Button.h"
+#include "ChipButton.h"
 
 
 /*
@@ -10,19 +10,19 @@ right Specifies the x-coordinate of the lower-right corner of the rectangle.
 bottom Specifies the y-coordinate of the lower-right corner of the rectangle.
  */
 
-const COLORREF Button::SELECTED = Color::YELLOW;
-const COLORREF Button::CLEAR = Color::GREY;
-const COLORREF Button::CHIP_BLACK = Color::BLACK;
-const COLORREF Button::CHIP_WHITE = Color::WHITE;
-const COLORREF Button::LINE_COLOR = Color::BLACK;
-const int Button::SIZE = 50;
-const int Button::CHIP_SIZE = 20;
+const COLORREF ChipButton::SELECTED = Color::YELLOW;
+const COLORREF ChipButton::CLEAR = Color::GREY;
+const COLORREF ChipButton::CHIP_BLACK = Color::BLACK;
+const COLORREF ChipButton::CHIP_WHITE = Color::WHITE;
+const COLORREF ChipButton::LINE_COLOR = Color::BLACK;
+const int ChipButton::SIZE = 50;
+const int ChipButton::CHIP_SIZE = 20;
 
 
-Button::Button(int x, int y) : x(x), y(y) {
-    btnRect = {x, y, x + Button::SIZE, y + Button::SIZE };
-    int btnSize = Button::SIZE;
-    int chipSize = Button::CHIP_SIZE;
+ChipButton::ChipButton(int x, int y) : x(x), y(y) {
+    btnRect = {x, y, x + ChipButton::SIZE, y + ChipButton::SIZE };
+    int btnSize = ChipButton::SIZE;
+    int chipSize = ChipButton::CHIP_SIZE;
     int dPlus = (btnSize + chipSize) / 2;
     int dMinus = (btnSize - chipSize) / 2;
 
@@ -35,7 +35,7 @@ Button::Button(int x, int y) : x(x), y(y) {
 }
 
 
-void Button::onPaint(HDC hdc) const {
+void ChipButton::onPaint(HDC hdc) const {
     SelectObject(hdc, GetStockObject(DC_BRUSH));
     SetDCBrushColor(hdc, btnColor);
     SelectObject(hdc, GetStockObject(DC_PEN));
@@ -54,25 +54,25 @@ void Button::onPaint(HDC hdc) const {
 
 }
 
-bool Button::containsPoint(int pX, int pY) {
-    return (x <= pX && pX <= (x + Button::SIZE)) &&
-           (y <= pY && pY <= (y + Button::SIZE));
+bool ChipButton::containsPoint(int pX, int pY) {
+    return (x <= pX && pX <= (x + ChipButton::SIZE)) &&
+           (y <= pY && pY <= (y + ChipButton::SIZE));
 }
 
 
 
 // setters
-void Button::setBtnColor(COLORREF btnColor) { Button::btnColor = btnColor; }
-void Button::setChipVisibility(bool showChip) { Button::showChip = showChip; }
-void Button::setChipColor(COLORREF chipColor) { Button::chipColor = chipColor; }
+void ChipButton::setBtnColor(COLORREF btnColor) { ChipButton::btnColor = btnColor; }
+void ChipButton::setChipVisibility(bool showChip) { ChipButton::showChip = showChip; }
+void ChipButton::setChipColor(COLORREF chipColor) { ChipButton::chipColor = chipColor; }
 
-bool Button::isChipVisible() const { return showChip; }
+bool ChipButton::isChipVisible() const { return showChip; }
 
 
 
 
 // старая функция
-//int Button::onPaint(LPDRAWITEMSTRUCT item) {
+//int ChipButton::onPaint(LPDRAWITEMSTRUCT item) {
 ////    if (modCount == drawCount) {
 ////        return TRUE;
 ////    }

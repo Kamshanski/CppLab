@@ -55,8 +55,13 @@ void RadioButtonGroup::onPaint(HDC hdc) const {
 bool RadioButtonGroup::onClick(int pX, int pY) {
     int clickedIndex = findOptionByCoords(pX, pY);
     if (clickedIndex > -1 && selectedIndex != clickedIndex) {
-        selectedIndex = clickedIndex;
-        return true;
+        if (listener != nullptr && listener->onSelected(selectedIndex, clickedIndex, options)) {
+            selectedIndex = clickedIndex;
+            return true;
+        } else if (listener == nullptr) {
+            selectedIndex = clickedIndex;
+            return true;
+        }
     }
     return false;
 }
@@ -74,6 +79,18 @@ int RadioButtonGroup::findOptionByCoords(int pX, int pY) {
         }
     }
     return -1;
+}
+
+void RadioButtonGroup::setListener(RadioButtonGroupListener *listener) {
+    RadioButtonGroup::listener = listener;
+}
+
+int RadioButtonGroup::getSelection() const {
+    return selectedIndex;
+}
+
+vector<string>& RadioButtonGroup::getOptions() {
+    return options;
 }
 
 

@@ -31,10 +31,8 @@
 #include "ConsoleReversi.h"
 
 #include "ui/components/Palette.h"
-//#include "ui/components/View.h"
-//#include "ui/components/Label.h"
-//#include "ui/components/Window.h"
-#include "ui/components/Button.h"
+#include "ui/components/Label.h"
+#include "ui/components/ChipButton.h"
 #include "ui/components/RadioButtonGroup.h"
 #include "ui/components/ButtonFieldListener.h"
 #include "ui/components/ButtonsField.h"

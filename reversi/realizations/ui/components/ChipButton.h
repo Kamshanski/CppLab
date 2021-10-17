@@ -1,7 +1,7 @@
 #pragma once
 #include "includeAll.h"
 
-class Button {
+class ChipButton {
 public:
     static const COLORREF SELECTED;
     static const COLORREF CLEAR;
@@ -24,7 +24,7 @@ private:
 
 
 public:
-    Button(int x, int y);
+    ChipButton(int x, int y);
 
     void onPaint(HDC hdc) const;
 

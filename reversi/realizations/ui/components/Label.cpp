@@ -1,14 +1,23 @@
 #include "includeAll.h"
 
-
-Label::Label(size_t id, Window* parent, int height, int width, int x, int y, const string &text)
-    : View(id,  parent, height, width, x, y, text) {}
-
-string Label::getText() const {
-    return text;
+Label::Label(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {
+    rect = { x, y, x + width, y + height};
 }
 
-void Label::setText(string &text) {
-    this->text = text;
-    SetWindowText(getDescriptor(), text.c_str());
+void Label::onPaint(HDC hdc) const {
+    SelectObject(hdc, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(hdc, Color::BLACK);
+    SelectObject(hdc, GetStockObject(DC_PEN));
+    SetDCPenColor(hdc, Color::BLACK);
+    DrawText(hdc, TEXT (text.c_str()), -1, const_cast<LPRECT>(&this->rect),
+             DT_SINGLELINE | DT_LEFT | DT_VCENTER);
 }
+
+void Label::setColor(COLORREF color) {
+    this->color = color;
+}
+
+void Label::setText(string text) {
+    this->text = std::move(text);
+}
+

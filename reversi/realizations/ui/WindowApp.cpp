@@ -6,22 +6,23 @@ using namespace std;
 //---------------------------
 const char g_szClassName[] = "Reversi Game";
 
-ButtonsField* btnField = nullptr;
-RadioButtonGroup* radioBtnGroup = nullptr;
+ButtonsField* bfField = nullptr;
+RadioButtonGroup* rbgPlayerColor = nullptr;
+RadioButtonGroup* rbgSecondPlayer = nullptr;s
 
 
 //---------------------------
 
 void initApp(HWND parent) {
     // init button field indexes
-    btnField = new ButtonsField(new ButtonFieldListenerImpl(nullptr));
-    radioBtnGroup = new RadioButtonGroup(500, 20, {"Option 1", "Very long option two"});
+    bfField = new ButtonsField(new ButtonFieldListenerImpl(nullptr));
+    rbgPlayerColor = new RadioButtonGroup(500, 20, {"Option 1", "Very long option two"});
 }
 
 bool processClick(int pX, int pY) {
     bool needToRedraw = false;
-    needToRedraw |= radioBtnGroup->onClick(pX, pY);
-    needToRedraw |= btnField->onClick(pX, pY);
+    needToRedraw |= rbgPlayerColor->onClick(pX, pY);
+    needToRedraw |= bfField->onClick(pX, pY);
 
 //    string text = ("You pressed button " + to_string(LOWORD(btnId)));
 //    MessageBox(parent, text.c_str(), "MessageBox", MB_OK | MB_ICONWARNING);
@@ -40,8 +41,8 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
             HDC hdc = BeginPaint(hwnd, &ps);
 
             // paint buttons
-            btnField->onPaint(hdc);
-            radioBtnGroup->onPaint(hdc);
+            bfField->onPaint(hdc);
+            rbgPlayerColor->onPaint(hdc);
 
             EndPaint(hwnd, &ps);
             useDefaultProc = false;
@@ -50,7 +51,7 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
         case WM_MOUSEMOVE: {
             int pX = GET_X_LPARAM(lParam);
             int pY = GET_Y_LPARAM(lParam);
-            bool hasChanges = btnField->onMouseMove(pX, pY);
+            bool hasChanges = bfField->onMouseMove(pX, pY);
             if (hasChanges) {
                 RECT windowRect;
                 GetClientRect(hwnd, &windowRect);
