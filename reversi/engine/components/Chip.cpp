@@ -2,29 +2,20 @@
 
 Chip::Chip(std::string name) : name(std::move(name)) {}
 
-Chip* Chip::_BLACK = new Chip("BLACK");
-Chip* Chip::_WHITE = new Chip("WHITE");
-Chip* Chip::_NONE = new Chip("NONE");
+Chip* const Chip::BLACK = new Chip("BLACK");
+Chip* const Chip::WHITE = new Chip("WHITE");
+Chip* const Chip::NONE = new Chip("NONE");
+
+
 
 Chip* Chip::getEnemy() {
-    if (this == _BLACK) return _WHITE;
-    if (this == _WHITE) return _BLACK;
+    if (this == BLACK) return WHITE;
+    if (this == WHITE) return BLACK;
     else throw IllegalChipException(this);
 
 }
 
 std::array<Chip*, 3> Chip::values() {
-    return {_BLACK, _WHITE, _NONE};
+    return {BLACK, WHITE, NONE};
 }
 
-Chip *Chip::BLACK() {
-    return _BLACK;
-}
-
-Chip *Chip::WHITE() {
-    return _WHITE;
-}
-
-Chip *Chip::NONE() {
-    return _NONE;
-}

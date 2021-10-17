@@ -3,9 +3,9 @@
 #include "includeAll.h"
 
 char chipToChar(Chip* chip) {
-    if (chip == Chip::WHITE()) return '-';
-    if (chip == Chip::BLACK()) return 'X';
-    if (chip == Chip::NONE()) return ' ';
+    if (chip == Chip::WHITE) return '-';
+    if (chip == Chip::BLACK) return 'X';
+    if (chip == Chip::NONE) return ' ';
     throw IllegalChipException(chip);
 }
 

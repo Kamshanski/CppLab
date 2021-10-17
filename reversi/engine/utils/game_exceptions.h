@@ -26,12 +26,14 @@ struct IllegalGameStateException : public std::exception {
 
 struct IllegalChipException : public std::exception {
     Chip* chip;
+    string msg;
 
-    explicit IllegalChipException(Chip* ch) : chip(ch) {}
+
+    explicit IllegalChipException(Chip* ch, string msg = "") : chip(ch), msg(std::move(msg)) {}
 
     const char* what() const noexcept override {
         ostringstream o;
-        o << "Chip " << chip << " cannot be used here";
+        o << "Chip " << chip << " cannot be used here: " << msg;
 
         auto* s = new string();
         *s = o.str();
@@ -42,14 +44,15 @@ struct IllegalChipException : public std::exception {
 struct IllegalMoveException : public IllegalChipException {
     int x, y;
 
-    IllegalMoveException(Chip* ch, int x, int y) : IllegalChipException(ch), x(x), y(y) {}
+    IllegalMoveException(Chip* ch, int x, int y, string msg = "") : IllegalChipException(ch, std::move(msg)), x(x), y(y) {}
 
     const char* what() const noexcept override {
         ostringstream o;
         o << "Illegal move with "
           << '\"' << chip << '\"'
           << " on position "
-          << '(' << x << ", " << y << ')';
+          << '(' << x << ", " << y << "):"
+          << msg;
         auto* s = new string();
         *s = o.str();
         return s->c_str() ;

@@ -5,7 +5,7 @@ Point *AiPlayer::onMoveRequest(ReversiEngine *engine) {
     size_t maxChips = 0;
     Point point(-1,-1);
     for (Point* p: *availableMoves) {
-        auto enemiesDefeated = engine->getAvailableAimsForMove(p)->size();
+        auto enemiesDefeated = engine->getAvailableAimsForMove(*p)->size();
         if (enemiesDefeated > maxChips) {
             maxChips = enemiesDefeated;
             point = *p;

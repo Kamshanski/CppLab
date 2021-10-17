@@ -44,11 +44,11 @@ void printSnapshot(Field* snap) {
 void printStat(Field* snap, ReversiEngine* engine) {
     auto stats = snap->getStatistics();
     cout << "Score: "
-         << "(Player " << engine->getPlayerNumber(Chip::BLACK()) << ") "
-         << stats[Chip::BLACK()]
+         << "(Player " << engine->getPlayerNumber(Chip::BLACK) << ") "
+         << stats[Chip::BLACK]
          << " : "
-         << stats[Chip::WHITE()]
-         << " (Player " << engine->getPlayerNumber(Chip::WHITE()) << ") "
+         << stats[Chip::WHITE]
+         << " (Player " << engine->getPlayerNumber(Chip::WHITE) << ") "
          << endl;
 }
 
@@ -84,28 +84,28 @@ Point* readFromConsole(ReversiEngine* engine) {
         } else if (ch == 'a') {
             printAvailableMoves(engine);
         } else if (ch == 'f') {
-            engine->requestToFinish();
+            engine->finishGame();
             return nullptr;
         }
     }
 }
 
 
-void BasicObserver::onSkipped(ReversiEngine *engine, Player *player) {
+void BasicObserver::onSkipped(ReversiEngine *engine, Chip* player) {
     cout << "Move "
          << engine->getMoveCounter()
          << ": "
-         << *player->getChip()
+         << *player
          << " skip" << endl;
 }
 
-void BasicObserver::onMoved(ReversiEngine *engine, Player *player, Point *move, std::vector<Point *> *switchedList) {
+void BasicObserver::onMoved(ReversiEngine *engine, Chip *player, Point move, PointsList* switchedList) {
     cout << "Move "
          << engine->getMoveCounter()
          << ": "
-         << *player->getChip()
+         << *player
          << " moved on "
-         << *move
+         << move
          << ". Switched chips: "
          << switchedList->size()
          << endl;
@@ -126,3 +126,4 @@ void BasicObserver::onFinished(ReversiEngine *engine, Field *snap) {
     cout << "Game finished" << endl;
     delete snap;
 }
+

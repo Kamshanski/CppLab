@@ -3,7 +3,7 @@
 
 char chipToChar(Chip* chip);
 
-
+enum GameState {FINISHED, MAY_MOVE, SKIPPED};
 template<typename T>
 T* requireNonNull(T* obj, const string& varName);
 
@@ -26,49 +26,49 @@ class GameListener;
 class ReversiEngine {
 private:
     bool _isStarted = false;
-    bool requestedToFinish = false;
     int moveCounter = 0;
     Field* field = new Field(FIELD_SIZE);
 
-    bool doesFirstPlayerStart = true;
-    Player* currentPlayer = nullptr;
-    Player* player1 = nullptr;
-    Player* player2 = nullptr;
+    Chip* player1 = Chip::BLACK;
+    Chip* player2 = Chip::WHITE;
+    Chip* currentPlayer = nullptr;
 
     GameListener* observer = nullptr;
 
-    std::vector<Point*>* validMoves = nullptr;
-    std::map<Point, vector<Point*>*>* aims = nullptr;
+    PointsList* availableMoves = nullptr;
+    PointsList* enemyMoves = nullptr;
+    std::map<Point, PointsList*>* aims = nullptr;
 
 
 public:
     ReversiEngine();
     Field* getSnapshot() const;
-    void startGame(Player* player1, Player* player2);
-    std::vector<Point*>* getAvailableMoves();
+    void startGame();
+    GameState next();
+    void move(Point point, Chip* player);
+    void finishGame();
 
     // small
     void setObserver(GameListener* observer);
     void removeObserver();
     bool isStarted() const;
-    void requestToFinish();
     int getMoveCounter() const;
-    void setFirstPlayerStarts();
-    void setSecondPlayerStarts();
-    PointsList* getAvailableAimsForMove(Point* point);
+    void setFirstBlackSecondWhite();
+    void setFirstWhiteSecondBlack();
+    PointsList* getAvailableMoves();
+    PointsList* getAvailableAimsForMove(Point point);
     int getPlayerNumber(Chip* chip);
+    Chip* getCurrentPlayer();
 private:
     void checkIsNotStarted() const;
     void checkIsStarted() const;
     void initDefaultValues();
-    void mainLoop();
-    bool mayFinish(bool hasMoves) const;
     PointsList* findAllPossibleMovesFor(Chip* player);
     Point* findMoveOtherSidePointFor(Chip* player, int fromX, int fromY, int dx, int dy);
-    PointsList* findAllAimsFor(Chip* player, int x, int y);
+    PointsList* findAllAimsFor(Chip* player, Point point);
     PointsList* findAimsOnDirectionFor(Chip* player, int x, int y, int dx, int dy);
     static PointsList* pointsBetween(int x1, int y1, int x2, int y2);
-    static bool containsPoint(PointsList& list, Point* point);
+    static bool containsPoint(PointsList* list, Point point);
     void switchPlayer();
 };
 

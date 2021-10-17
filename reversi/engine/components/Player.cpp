@@ -9,7 +9,7 @@ Chip *Player::getEnemyChip() const {
 }
 
 Player::Player(Chip *chip) {
-    if (chip == Chip::NONE()) {
+    if (chip == Chip::NONE) {
         throw IllegalChipException(chip);
     }
     this->chip = chip;

@@ -7,7 +7,7 @@ Field::Field(int size) : size(size) {
     for (int i = 0; i < size; ++i) {
         field[i] = new Chip*[size];
         for (int j = 0; j < size; ++j) {
-            field[i][j] = Chip::NONE();
+            field[i][j] = Chip::NONE;
         }
     }
 
@@ -15,10 +15,10 @@ Field::Field(int size) : size(size) {
 }
 
 void Field::initStartPositions() {
-    setChip(3, 3, Chip::WHITE());
-    setChip(4, 4, Chip::WHITE());
-    setChip(4, 3, Chip::BLACK());
-    setChip(3, 4, Chip::BLACK());
+    setChip(3, 3, Chip::WHITE);
+    setChip(4, 4, Chip::WHITE);
+    setChip(4, 3, Chip::BLACK);
+    setChip(3, 4, Chip::BLACK);
 }
 
 Chip* Field::getChip(int x, int y) const {
@@ -62,7 +62,7 @@ Field *Field::getSnapshot() const {
 void Field::clear() {
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
-            setChip(i, j, Chip::NONE());
+            setChip(i, j, Chip::NONE);
         }
     }
     initStartPositions();

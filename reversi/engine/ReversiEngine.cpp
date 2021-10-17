@@ -1,79 +1,82 @@
 #include "includeAll.h"
 #include "utilities.cpp"
+#include "ReversiEngine.h"
+
 
 bool ReversiEngine::isStarted() const {
     return _isStarted;
 }
 
-void ReversiEngine::requestToFinish() {
+void ReversiEngine::finishGame() {
     checkIsStarted();
-    requestedToFinish = true;
+    _isStarted = false;
+
+    clearVectorOfPointers(availableMoves);
+    clearVectorOfPointers(enemyMoves);
+    clearMapOfVectorsOfPointers(aims);
+    availableMoves = enemyMoves = nullptr;
+    aims = nullptr;
+
+    observer->onFinished(this, getSnapshot());
 }
 
-void ReversiEngine::mainLoop() {
-    bool hasMoves = true;
-    while (true) {
-        if (mayFinish(hasMoves)) return;
+GameState ReversiEngine::next() {
+    checkIsStarted();
 
-        std::vector<Point*>* moves = getAvailableMoves();
-        if (moves->empty()) {
-            auto movesForEnemy = findAllPossibleMovesFor(currentPlayer->getChip()->getEnemy());
-            if (movesForEnemy->empty()) {
-                hasMoves = false;
-            }
+    availableMoves = findAllPossibleMovesFor(currentPlayer);
+    enemyMoves = findAllPossibleMovesFor(currentPlayer->getEnemy());
 
-            if (mayFinish(hasMoves)) return;
-
-            player1->onSkipped(this, currentPlayer);
-            player2->onSkipped(this, currentPlayer);
-            if (observer != nullptr) observer->onSkipped(this, currentPlayer);
-        } else {
-            Point* move;
-            while (true) {
-                move = currentPlayer->onMoveRequest(this);
-
-                if (mayFinish(hasMoves)) return;
-
-                vector<Point*>* availableMoves = getAvailableMoves();
-
-                if (containsPoint(*availableMoves, move)) {
-                    break;
-                } else {
-                    auto error = IllegalMoveException(currentPlayer->getChip(), move->getX(), move->getY());
-                    currentPlayer->onError(this, error);
-                    if (mayFinish(hasMoves)) return;
-                }
-            }
-
-            PointsList* aimList = getAvailableAimsForMove(move);
-            for (Point* aim : *aimList) {
-                field->switchChip(aim->getX(), aim->getY());
-            }
-            field->setChip(move->getX(), move->getY(), currentPlayer->getChip());
-
-            player1->onMoved(this, currentPlayer, move, aimList);
-            player2->onMoved(this, currentPlayer, move, aimList);
-            if (observer != nullptr) observer->onMoved(this, currentPlayer, move, aimList);
-            delete move;
+    aims = new map<Point, PointsList*>();
+    for (Point* p: *availableMoves) {
+        PointsList* aimList = findAllAimsFor(currentPlayer, *p);
+        if (aimList != nullptr) {
+            (*aims)[*p] = aimList;
         }
-        switchPlayer();
-        moveCounter++;
+    }
 
-        if (mayFinish(hasMoves)) return;
-
-        clearVectorOfPointers(validMoves);
-        clearMapOfVectorsOfPointers(aims);
-        validMoves = nullptr;
-        aims = nullptr;
+    if (!availableMoves->empty()) {
+        return GameState::MAY_MOVE;
+    } else {
+        observer->onSkipped(this, currentPlayer);
+        if (enemyMoves->empty()) {
+            finishGame();
+            return GameState::FINISHED;
+        }
+        return GameState::SKIPPED;
     }
 }
 
-bool ReversiEngine::mayFinish(bool hasMoves) const {
-    return requestedToFinish || !hasMoves;
+void ReversiEngine::move(Point target, Chip* player) {
+    checkIsStarted();
+
+    if (availableMoves == nullptr)
+        throw IllegalGameStateException(_isStarted, "You should start game and invoke next() before the first move()");
+    if (!containsPoint(availableMoves, target))
+        throw IllegalMoveException(currentPlayer, target.getX(), target.getY(), "Thus no aims can be found");
+    if (player != currentPlayer)
+        throw IllegalChipException(player, "This player can't move now. It's enemy's turn");
+
+    PointsList* aimList = getAvailableAimsForMove(target);
+    for (Point* aim : *aimList) {
+        field->switchChip(aim->getX(), aim->getY());
+    }
+    field->setChip(target.getX(), target.getY(), currentPlayer);
+
+    observer->onMoved(this, currentPlayer, target, aimList);
+
+    switchPlayer();
+    moveCounter++;
+
+    clearVectorOfPointers(availableMoves);
+    clearVectorOfPointers(enemyMoves);
+    clearMapOfVectorsOfPointers(aims);
+    availableMoves = enemyMoves = nullptr;
+    aims = nullptr;
 }
+
 // PUBLIC
 
-void ReversiEngine::startGame(Player *player1, Player *player2) {
+void ReversiEngine::startGame() {
     checkIsNotStarted();
     this->player1 = requireNonNull(player1, "player1");
     this->player2 = requireNonNull(player2, "player2");
@@ -83,18 +86,6 @@ void ReversiEngine::startGame(Player *player1, Player *player2) {
     _isStarted = true;
 
     if (observer != nullptr) observer->onStarted(this);
-    player1->onStarted(this);
-    player2->onStarted(this);
-
-
-    mainLoop();
-
-
-    player1->onFinished(this, getSnapshot());
-    player2->onFinished(this, getSnapshot());
-    if (observer != nullptr) observer->onFinished(this, getSnapshot());
-
-    _isStarted = false;
 }
 
 
@@ -103,32 +94,24 @@ Field *ReversiEngine::getSnapshot() const{
     return field->getSnapshot();
 }
 
-std::vector<Point *> *ReversiEngine::getAvailableMoves() {
+PointsList* ReversiEngine::getAvailableMoves() {
     checkIsStarted();
-    if (validMoves == nullptr) {
-        validMoves = findAllPossibleMovesFor(currentPlayer->getChip());
-    }
-    return validMoves;
+    if (availableMoves == nullptr)
+        throw IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()");
+    return availableMoves;
 }
 
-PointsList *ReversiEngine::getAvailableAimsForMove(Point *point) {
+PointsList* ReversiEngine::getAvailableAimsForMove(Point point) {
     checkIsStarted();
-    PointsList* availableMoves = getAvailableMoves();
-    if (!containsPoint(*availableMoves, point)) {
-        throw IllegalMoveException(currentPlayer->getChip(), point->getX(), point->getY());
+    if (availableMoves == nullptr)
+        throw IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()");
+
+    if (!containsPoint(availableMoves, point)) {
+        throw IllegalMoveException(currentPlayer, point.getX(), point.getY(), "Thus no aims can be found");
     }
 
-    if (aims == nullptr) {
-        aims = new map<Point, PointsList*>();
-    }
-
-    PointsList* aimList = getOrNull(*aims, *point);
-    if (aimList == nullptr) {
-        aimList = findAllAimsFor(currentPlayer->getChip(), point->getX(), point->getY());
-        if (aims != nullptr)
-            (*aims)[*point] = aimList;
-    }
-    return aimList;
+    PointsList* aimsList = getOrNull(*aims, point);
+    return aimsList;
 }
 
 // PRIVATE
@@ -137,7 +120,7 @@ PointsList* ReversiEngine::findAllPossibleMovesFor(Chip *player) {
     auto moves = new PointsList();
     for (int i = 0; i < FIELD_SIZE; ++i) {
         for (int j = 0; j < FIELD_SIZE; ++j) {
-            if (field->getChip(i, j) == Chip::NONE()) {
+            if (field->getChip(i, j) == Chip::NONE) {
                 for (Point dir: POSSIBLE_DIRECTIONS) {
                     Point* endPoint = findMoveOtherSidePointFor(player, i, j, dir.getX(), dir.getY());
                     bool isValidMove = endPoint != nullptr;
@@ -153,10 +136,10 @@ PointsList* ReversiEngine::findAllPossibleMovesFor(Chip *player) {
     return moves;
 }
 
-PointsList *ReversiEngine::findAllAimsFor(Chip *player, int x, int y) {
+PointsList *ReversiEngine::findAllAimsFor(Chip *player, Point point) {
     auto aimList = new PointsList();
     for (Point direction: POSSIBLE_DIRECTIONS) {
-        PointsList* points = findAimsOnDirectionFor(player, x, y, direction.getX(), direction.getY());
+        PointsList* points = findAimsOnDirectionFor(player, point.getX(), point.getY(), direction.getX(), direction.getY());
         for (Point* p: *points) {
             aimList->push_back(p);
         }
@@ -182,7 +165,7 @@ Point* ReversiEngine::findMoveOtherSidePointFor(Chip *player, int fromX, int fro
     int j = fromY + dy;
     while ((0 <= i && i < FIELD_SIZE) && (0 <= j && j < FIELD_SIZE)) {
         Chip* chip = field->getChip(i, j);
-        if (chip == Chip::NONE()) {
+        if (chip == Chip::NONE) {
             return nullptr;
         }
 
@@ -218,30 +201,23 @@ PointsList *ReversiEngine::pointsBetween(int x1, int y1, int x2, int y2) {
 void ReversiEngine::initDefaultValues() {
     field->clear();
     moveCounter = 0;
-    currentPlayer = (doesFirstPlayerStart) ? player1 : player2;
-    clearVectorOfPointers(validMoves);
+    currentPlayer = (player1 == Chip::BLACK) ? player1 : player2;
+    clearVectorOfPointers(availableMoves);
+    clearVectorOfPointers(enemyMoves);
     clearMapOfVectorsOfPointers(aims);
-    validMoves = nullptr;
+    availableMoves = enemyMoves = nullptr;
     aims = nullptr;
-
-    validMoves = nullptr;
-    aims = nullptr;
-    requestedToFinish = false;
 }
 
 void ReversiEngine::switchPlayer() {
     checkIsStarted();
-    Chip* enemy = currentPlayer->getEnemyChip();
-    if (player1->getChip() == enemy) {
-        currentPlayer = player1;
-    } else {
-        currentPlayer = player2;
-    }
+    Chip* enemy = currentPlayer->getEnemy();
+    currentPlayer = enemy;
 }
 
 int ReversiEngine::getPlayerNumber(Chip *chip) {
-    if (player1->getChip() == chip) return 1;
-    if (player2->getChip() == chip) return 2;
+    if (player1 == chip) return 1;
+    if (player2 == chip) return 2;
     return -1;
 }
 
@@ -253,13 +229,15 @@ int ReversiEngine::getMoveCounter() const {
     return moveCounter;
 }
 
-void ReversiEngine::setFirstPlayerStarts() {
+void ReversiEngine::setFirstBlackSecondWhite() {
     checkIsNotStarted();
-    doesFirstPlayerStart = true;
+    player1 = Chip::BLACK;
+    player2 = Chip::WHITE;
 }
-void ReversiEngine::setSecondPlayerStarts() {
+void ReversiEngine::setFirstWhiteSecondBlack() {
     checkIsNotStarted();
-    doesFirstPlayerStart = false;
+    player1 = Chip::WHITE;
+    player2 = Chip::BLACK;
 }
 
 ReversiEngine::ReversiEngine() {
@@ -284,9 +262,13 @@ void ReversiEngine::removeObserver() {
     this->observer = nullptr;
 }
 
-bool ReversiEngine::containsPoint(PointsList& list, Point *point) {
-    function<bool(Point*)> comparator = [point](Point* p) -> bool {return *point == *p;};
-    return contains(list, comparator);
+bool ReversiEngine::containsPoint(PointsList* list, Point point) {
+    function<bool(Point*)> comparator = [&point](Point* p) -> bool {return point == *p;};
+    return contains(*list, comparator);
+}
+
+Chip *ReversiEngine::getCurrentPlayer() {
+    return currentPlayer;
 }
 
 

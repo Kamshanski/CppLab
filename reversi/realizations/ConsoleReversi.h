@@ -10,9 +10,9 @@ void printAvailableMoves(ReversiEngine* engine);
 Point* readFromConsole(ReversiEngine* engine);
 
 class BasicObserver : public GameListener {
-    void onSkipped(ReversiEngine *engine, Player *player) override;
+    void onSkipped(ReversiEngine *engine, Chip* player) override;
 
-    void onMoved(ReversiEngine *engine, Player *player, Point *move, std::vector<Point *> *switchedList) override;
+    void onMoved(ReversiEngine *engine, Chip* player, Point move, PointsList* switchedList) override;
 
     void onStarted(ReversiEngine *engine) override;
 
