@@ -1124,7 +1124,7 @@ class TestEventListener {
   virtual void OnTestStart(const TestInfo& test_info) = 0;
 
   // Fired after a failed assertion or a SUCCEED() invocation.
-  // If you want to throw an exception from this function to skip to the next
+  // If you want to throw an exception from this function to skip to the analyseGame
   // TEST, it must be AssertionException defined above, or inherited from it.
   virtual void OnTestPartResult(const TestPartResult& test_part_result) = 0;
 
@@ -1206,7 +1206,7 @@ class GTEST_API_ TestEventListeners {
   // output.  Can be removed from the listeners list to shut down default
   // console output.  Note that removing this object from the listener list
   // with Release transfers its ownership to the caller and makes this
-  // function return NULL the next time.
+  // function return NULL the analyseGame time.
   TestEventListener* default_result_printer() const {
     return default_result_printer_;
   }
@@ -1216,7 +1216,7 @@ class GTEST_API_ TestEventListeners {
   // listeners list by users who want to shut down the default XML output
   // controlled by this flag and substitute it with custom one.  Note that
   // removing this object from the listener list with Release transfers its
-  // ownership to the caller and makes this function return NULL the next
+  // ownership to the caller and makes this function return NULL the analyseGame
   // time.
   TestEventListener* default_xml_generator() const {
     return default_xml_generator_;

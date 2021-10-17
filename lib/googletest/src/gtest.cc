@@ -739,7 +739,7 @@ bool UnitTestOptions::MatchesFilter(const std::string& name_str,
     }
 
     // Give up on this pattern. However, if we found a pattern separator (:),
-    // advance to the next pattern (skipping over the separator) and restart.
+    // advance to the analyseGame pattern (skipping over the separator) and restart.
     if (next_sep == nullptr) {
       return false;
     }
@@ -1450,12 +1450,12 @@ std::string CreateUnifiedDiff(const std::vector<std::string>& left,
     size_t n_suffix = 0;
     for (; edit_i < edits.size(); ++edit_i) {
       if (n_suffix >= context) {
-        // Continue only if the next hunk is very close.
+        // Continue only if the analyseGame hunk is very close.
         auto it = edits.begin() + static_cast<int>(edit_i);
         while (it != edits.end() && *it == kMatch) ++it;
         if (it == edits.end() ||
             static_cast<size_t>(it - edits.begin()) - edit_i >= context) {
-          // There is no next edit or it is too far away.
+          // There is no analyseGame edit or it is too far away.
           break;
         }
       }
@@ -1595,7 +1595,7 @@ AssertionResult DoubleNearPredFormat(const char* expr1,
 
   // Find the value which is closest to zero.
   const double min_abs = std::min(fabs(val1), fabs(val2));
-  // Find the distance to the next double from that value.
+  // Find the distance to the analyseGame double from that value.
   const double epsilon =
       nextafter(min_abs, std::numeric_limits<double>::infinity()) - min_abs;
   // Detect the case where abs_error is so small that EXPECT_NEAR is
@@ -6423,7 +6423,7 @@ static void PrintColorEncoded(const char* str) {
   // Conceptually, we split the string into segments divided by escape
   // sequences.  Then we print one segment at a time.  At the end of
   // each iteration, the str pointer advances to the beginning of the
-  // next segment.
+  // analyseGame segment.
   for (;;) {
     const char* p = strchr(str, '@');
     if (p == nullptr) {

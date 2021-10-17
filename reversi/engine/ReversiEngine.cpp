@@ -1,5 +1,6 @@
 #include "includeAll.h"
 #include "utilities.cpp"
+#include "ReversiEngine.h"
 
 
 bool ReversiEngine::isStarted() const {
@@ -27,7 +28,7 @@ void ReversiEngine::finishGame() {
 
 }
 
-GameState ReversiEngine::next() {
+GameState ReversiEngine::analyseGame() {
     if (!isStarted()) {
         tryToNotifyOnError(gameStateException());
         return FINISHED;
@@ -48,13 +49,13 @@ GameState ReversiEngine::next() {
         return GameState::MAY_MOVE;
     } else {
         observer->onSkipped(this, currentPlayer);
-        switchPlayer();
-        moveCounter++;
-        clearMoveData();
         if (enemyMoves->empty()) {
             finishGame();
             return GameState::FINISHED;
         }
+        switchPlayer();
+        moveCounter++;
+        clearMoveData();
         return GameState::SKIPPED;
     }
 }
@@ -66,7 +67,7 @@ void ReversiEngine::move(Point target, Chip* player) {
     }
 
     if (availableMoves == nullptr) {
-        tryToNotifyOnError(new IllegalGameStateException(_isStarted,"You should start game and invoke next() before the first move()"));
+        tryToNotifyOnError(new IllegalGameStateException(_isStarted,"You should start game and invoke analyseGame() before the first move()"));
         return;
     }
     if (!containsPoint(availableMoves, target)) {
@@ -86,9 +87,9 @@ void ReversiEngine::move(Point target, Chip* player) {
 
     observer->onMoved(this, currentPlayer, target, aimList);
 
-    switchPlayer();
     moveCounter++;
     clearMoveData();
+    switchPlayer();
 }
 
 // PUBLIC
@@ -106,6 +107,8 @@ void ReversiEngine::startGame() {
     _isStarted = true;
 
     if (observer != nullptr) observer->onStarted(this);
+
+    analyseGame();
 }
 
 
@@ -123,7 +126,7 @@ PointsList* ReversiEngine::getAvailableMoves() {
         return nullptr;
     }
     if (availableMoves == nullptr) {
-        tryToNotifyOnError(new IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()"));
+        tryToNotifyOnError(new IllegalGameStateException(_isStarted, "You have to invoke analyseGame() before the first move()"));
         return nullptr;
     }
     return availableMoves;
@@ -136,11 +139,7 @@ PointsList* ReversiEngine::getAvailableAimsForMove(Point point) {
     }
     if (availableMoves == nullptr) {
         tryToNotifyOnError(
-                new IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()"));
-        return nullptr;
-    }
-    if (!containsPoint(availableMoves, point)) {
-        tryToNotifyOnError(new IllegalMoveException(currentPlayer, point.getX(), point.getY(), "Thus no aims can be found"));
+                new IllegalGameStateException(_isStarted, "You have to invoke analyseGame() before the first move()"));
         return nullptr;
     }
 
@@ -251,6 +250,7 @@ void ReversiEngine::switchPlayer() {
     Chip* enemy = currentPlayer->getEnemy();
     currentPlayer = enemy;
     if (observer != nullptr) observer->onSwitchPlayers(this);
+    analyseGame();
 }
 
 int ReversiEngine::getPlayerNumber(Chip *chip) {
@@ -341,6 +341,10 @@ void ReversiEngine::tryToNotifyOnError(std::exception* ex) const {
 
 IllegalGameStateException *ReversiEngine::gameStateException() const{
     return new IllegalGameStateException(isStarted());
+}
+
+Chip *ReversiEngine::getChipOn(Point point) {
+    return field->getChip(point.getX(), point.getY());
 }
 
 

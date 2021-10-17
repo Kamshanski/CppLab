@@ -982,7 +982,7 @@ Fired before the test starts.
 test_part_result)`
 
 Fired after a failed assertion or a `SUCCEED()` invocation. If you want to throw
-an exception from this function to skip to the next test, it must be an
+an exception from this function to skip to the analyseGame test, it must be an
 [`AssertionException`](#AssertionException) or inherited from it.
 
 ##### OnTestEnd {#TestEventListener::OnTestEnd}
@@ -1056,7 +1056,7 @@ Returns the standard listener responsible for the default console output. Can be
 removed from the listeners list to shut down default console output. Note that
 removing this object from the listener list with
 [`Release()`](#TestEventListeners::Release) transfers its ownership to the
-caller and makes this function return `NULL` the next time.
+caller and makes this function return `NULL` the analyseGame time.
 
 ##### default_xml_generator {#TestEventListeners::default_xml_generator}
 
@@ -1067,7 +1067,7 @@ by the `--gtest_output=xml` flag. Can be removed from the listeners list by
 users who want to shut down the default XML output controlled by this flag and
 substitute it with custom one. Note that removing this object from the listener
 list with [`Release()`](#TestEventListeners::Release) transfers its ownership to
-the caller and makes this function return `NULL` the next time.
+the caller and makes this function return `NULL` the analyseGame time.
 
 ### TestPartResult {#TestPartResult}
 

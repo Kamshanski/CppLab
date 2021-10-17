@@ -3,8 +3,9 @@
 
 class ChipButton : public Drawable  {
 public:
-    static const COLORREF SELECTED;
-    static const COLORREF CLEAR;
+    static const COLORREF BTN_SELECTED;
+    static const COLORREF BTN_HIGHLIGHTED;
+    static const COLORREF BTN_CLEAR;
     static const COLORREF CHIP_BLACK;
     static const COLORREF CHIP_WHITE;
     static const COLORREF LINE_COLOR;
@@ -15,7 +16,7 @@ private:
     int chipSize;
 
     RECT btnRect;
-    COLORREF btnColor = CLEAR;
+    COLORREF btnColor = BTN_CLEAR;
 
     bool showChip = false;
     RECT chipRect;

@@ -8,18 +8,18 @@ public:
     static const int BTN_FIELD_SIZE;
 private:
     int startX, startY, endX, endY;
-    int gap;
+    int gap, elementSize;
     // negatives mean mouse is not over a btn
     pair<int, int> enteredBtnIndexes {-1, -1};
     ChipButton*** buttons = new ChipButton**[BTN_FIELD_SIZE];
-    ButtonFieldListener* listener = nullptr;
+    ButtonsFieldListener* listener = nullptr;
 
 private:
     /** @return [-1, -1] if nothing found*/
     pair<int, int> findEnteredButton(int pX, int pY);
 
     void setButton(int i, int j, ChipButton* btn) { buttons[j][i] = btn; }
-
+    ChipButton* getButton(int i, int j) const;
 public:
     ButtonsField(int x, int y, int elementSize, int chipSize, int gap);
 
@@ -34,6 +34,9 @@ public:
     void setChipBlack(int i, int j);
     void setChipWhite(int i, int j);
 
-    void setListener(ButtonFieldListener *listener);
-    ChipButton* getButton(int i, int j) const;
+    void setButtonHighlighted(int i, int j);
+    void setButtonSelected(int i, int j);
+    void setButtonClear(int i, int j);
+
+    void setListener(ButtonsFieldListener *listener);
 };

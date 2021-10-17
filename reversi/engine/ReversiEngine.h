@@ -44,7 +44,7 @@ public:
     ReversiEngine();
     Field* getSnapshot() const;
     void startGame();
-    GameState next();
+    GameState analyseGame();
     void move(Point point, Chip* player);
     void finishGame();
 
@@ -60,6 +60,7 @@ public:
     int getPlayerNumber(Chip* chip);
     Chip* getPlayersChip(int playerNum);
     Chip* getCurrentPlayer();
+    Chip* getChipOn(Point point);
 private:
     void checkIsStarted() const;
     void initDefaultValues();

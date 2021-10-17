@@ -20,6 +20,7 @@ void MultilineLabel::addLine(string line) {
       << std::setfill('0') << std::setw(2) << now->tm_min << ':'
       << std::setfill('0') << std::setw(2) << now->tm_sec << " >> "
       << line;
+    cout << o.str()<<endl;
     lines.push_back(o.str());
 }
 

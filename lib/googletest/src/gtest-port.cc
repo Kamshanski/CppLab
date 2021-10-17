@@ -1034,7 +1034,7 @@ GTEST_API_ ::std::string FormatFileLocation(const char* file, int line) {
 }
 
 // Formats a file location for compiler-independent XML output.
-// Although this function is not platform dependent, we put it next to
+// Although this function is not platform dependent, we put it analyseGame to
 // FormatFileLocation in order to contrast the two functions.
 // Note that FormatCompilerIndependentFileLocation() does NOT append colon
 // to the file location it produces, unlike FormatFileLocation().

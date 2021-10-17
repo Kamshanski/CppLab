@@ -63,11 +63,11 @@ public:
         auto snap = engine->getSnapshot();
         auto stats = snap->getStatistics();
         ostringstream o;
-        o << "Player 1 (" << engine->getPlayersChip(1) << ")"
+        o << "Player 1 (" << *engine->getPlayersChip(1) << ") "
           << stats[Chip::BLACK]
           << " : "
           << stats[Chip::WHITE]
-          << "(" << engine->getPlayersChip(2) << ") Player 2";
+          << " (" << *engine->getPlayersChip(2) << ") Player 2";
         lScore->setText(o.str());
         delete snap;
         redrawRectangle(MAIN_WINDOW_HWND, lScore->getViewRect());
@@ -98,6 +98,7 @@ public:
         btnStartStop->setText("FINISH");
         redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
         redrawRectangle(MAIN_WINDOW_HWND, btnStartStop->getViewRect());
+        engine->analyseGame();
     }
 
     void onFinished(ReversiEngine *engine, Field *snap) override {
@@ -141,6 +142,48 @@ struct StartStopBtnListener : ButtonListener {
     }
 };
 
+struct FieldListener: ButtonsFieldListener {
+    void clearButtons(ButtonsField* field) {
+        for (int i = 0; i < ButtonsField::BTN_FIELD_SIZE; ++i) {
+            for (int j = 0; j < ButtonsField::BTN_FIELD_SIZE; ++j) {
+                field->setButtonClear(i, j);
+            }
+        }
+    }
+
+
+    void onMouseEnteredButton(ButtonsField *field, int i, int j) override {
+        clearButtons(field);
+        if (engine->isStarted()) {
+            Chip* chip = engine->getChipOn({i, j});
+            if (chip == Chip::NONE) {
+                field->setButtonSelected(i, j);
+                PointsList* aims = engine->getAvailableAimsForMove({i, j});
+                if (aims != nullptr) {
+                    if (!aims->empty()) {
+                        for (Point* p: *aims) {
+                            field->setButtonHighlighted(p->getX(), p->getY());
+                        }
+                    }
+                }
+            }
+        } else {
+            field->setButtonSelected(i, j);
+        }
+
+    }
+
+    void onMouseEscapedButton(ButtonsField *field) override {
+        clearButtons(field);
+    }
+
+    void onClickOnButton(ButtonsField *field, int i, int j) override {
+        engine->move({i, j}, engine->getCurrentPlayer());
+        clearButtons(field);
+        field->setButtonSelected(i, j);
+    }
+};
+
 //---------------------------
 
 void initApp(HWND parent) {
@@ -150,7 +193,7 @@ void initApp(HWND parent) {
     // init button field indexes
     bfField = new ButtonsField(60, 60, 50, 20, 4);
     // todo engine
-    bfField->setListener(new ButtonFieldListenerImpl(nullptr));
+    bfField->setListener(new FieldListener());
 
     lPlayerColor = new Label(500, 60, 150, 20);
     lPlayerColor->setText("Your color:");
@@ -166,7 +209,7 @@ void initApp(HWND parent) {
     lGameLog->addLine("Press <<START>> to start the game!");
 
     lScore = new Label(60, 20, 450, 40, true, false);
-    lScore->setText("Player 1 (BLACK) 20 : 25 (WHITE) Player 2");
+    lScore->setText("Player 1 (BLACK) XX : XX (WHITE) Player 2");
 
     auto r = rbgSecondPlayer->getViewRect();
     btnStartStop = new Button(r.left, r.top + 200, 100, 61);
@@ -189,7 +232,7 @@ void initApp(HWND parent) {
     clickables.push_back(bfField);
 }
 
-
+// TODO продебажить пропуски
 LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
 
     bool useDefaultProc = true;
@@ -273,10 +316,7 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow){
-    MSG Msg;
-    HWND hwnd;
     WNDCLASSEX wc;
-
     wc.lpszMenuName  = NULL;
     wc.hInstance     = hInstance;
     wc.lpszClassName = g_szClassName;
@@ -289,12 +329,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
     wc.lpfnWndProc   = lpfnWndProc;
 
-    if(!RegisterClassEx(&wc))    {
+    if (!RegisterClassEx(&wc))    {
         MessageBox(NULL, "Window Registration Failed", "Error",   MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
 
-    hwnd = CreateWindow(g_szClassName,
+    HWND hwnd = CreateWindow(g_szClassName,
                         "ReversiGame",
                         WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, // disable resize
                         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -304,8 +344,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                         NULL);
 
 
-
-    if(hwnd == NULL)    {
+    if (hwnd == NULL)    {
         MessageBox(NULL, "Window Creation Failed", "Error",   MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
@@ -313,6 +352,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
 
+    MSG Msg;
     while(GetMessage(&Msg, NULL, 0, 0) > 0)    {
         TranslateMessage(&Msg);
         DispatchMessage(&Msg);

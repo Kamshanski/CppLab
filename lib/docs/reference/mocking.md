@@ -234,7 +234,7 @@ built-in actions.
 The use of `WillOnce` implicitly sets a cardinality on the expectation when
 `Times` is not specified. See [`Times`](#EXPECT_CALL.Times).
 
-Each matching function call will perform the next action in the order declared.
+Each matching function call will perform the analyseGame action in the order declared.
 For example, the following code specifies that `my_mock.GetNumber()` is expected
 to be called exactly 3 times and will return `1`, `2`, and `3` respectively on
 the first, second, and third calls:

@@ -4,6 +4,7 @@
 class Color {
 public:
     static const COLORREF GREY;
+    static const COLORREF DARK_GREY;
     static const COLORREF BLACK;
     static const COLORREF WHITE;
     static const COLORREF YELLOW;

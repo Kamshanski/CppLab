@@ -10,8 +10,9 @@ right Specifies the x-coordinate of the lower-right corner of the rectangle.
 bottom Specifies the y-coordinate of the lower-right corner of the rectangle.
  */
 
-const COLORREF ChipButton::SELECTED = Color::YELLOW;
-const COLORREF ChipButton::CLEAR = Color::GREY;
+const COLORREF ChipButton::BTN_SELECTED = Color::DARK_GREY;
+const COLORREF ChipButton::BTN_HIGHLIGHTED = Color::YELLOW;
+const COLORREF ChipButton::BTN_CLEAR = Color::GREY;
 const COLORREF ChipButton::CHIP_BLACK = Color::BLACK;
 const COLORREF ChipButton::CHIP_WHITE = Color::WHITE;
 const COLORREF ChipButton::LINE_COLOR = Color::BLACK;
