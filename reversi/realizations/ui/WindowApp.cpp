@@ -4,6 +4,7 @@
 using namespace std;
 
 //---------------------------
+HWND MAIN_WINDOW_HWND;
 const char g_szClassName[] = "Reversi Game";
 
 ButtonsField* bfField = nullptr;
@@ -11,17 +12,27 @@ RadioButtonGroup* rbgPlayerColor = nullptr;
 RadioButtonGroup* rbgSecondPlayer = nullptr;
 Label* lPlayerColor = nullptr;
 Label* lSecondPlayer = nullptr;
-Label* lGameMessages = nullptr;
 Label* lScore = nullptr;
+MultilineLabel* lGameLog = nullptr;
+Button* btnStartStop = nullptr;
 
 vector<Drawable*> drawables;
 vector<Clickable*> clickables;
 
-
+ReversiEngine* engine;
 //---------------------------
 
+void redrawRectangle(HWND hwnd, RECT rect) {
+    InvalidateRect(hwnd, &rect, NULL);
+}
+//---------------------------
 struct PlayerColorListener : RadioButtonGroupListener {
     bool onSelected(int idNew, int idPrev, vector<string> &options) override {
+        if (idNew == 0) {
+            engine->setFirstBlackSecondWhite();
+        } else {
+            engine->setFirstWhiteSecondBlack();
+        }
         return true;
     }
 };
@@ -32,9 +43,107 @@ struct SecondPlayerListener : RadioButtonGroupListener {
     }
 };
 
+class GameObserver : public GameListener {
+public:
+    void fetchField() {
+        auto snap = engine->getSnapshot();
+        auto stats = snap->getStatistics();
+        for (int i = 0; i < snap->getSize(); ++i) {
+            for (int j = 0; j < snap->getSize(); ++j) {
+                if (snap->getChip(i, j) == Chip::BLACK) bfField->setChipBlack(i, j);
+                else if (snap->getChip(i, j) == Chip::WHITE) bfField->setChipWhite(i, j);
+                else if (snap->getChip(i, j) == Chip::NONE) bfField->setChipInvisible(i, j);
+            }
+        }
+        delete snap;
+        redrawRectangle(MAIN_WINDOW_HWND, bfField->getViewRect());
+    }
+
+    void onSwitchPlayers(ReversiEngine *engine) override {
+        fetchField();
+        auto snap = engine->getSnapshot();
+        auto stats = snap->getStatistics();
+        ostringstream o;
+        o << "Player 1 (" << engine->getPlayersChip(1) << ")"
+          << stats[Chip::BLACK]
+          << " : "
+          << stats[Chip::WHITE]
+          << "(" << engine->getPlayersChip(2) << ") Player 2";
+        lScore->setText(o.str());
+        delete snap;
+        redrawRectangle(MAIN_WINDOW_HWND, lScore->getViewRect());
+    }
+
+    void onSkipped(ReversiEngine *engine, Chip *player) override {
+        ostringstream o;
+        o << "Player " << *player << " skipped move.";
+        lGameLog->addLine(o.str());
+        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+    }
+
+    void onMoved(ReversiEngine *engine, Chip *player, Point move, PointsList *switchedList) override {
+        ostringstream o;
+        o << "Player " << engine->getPlayerNumber(player)
+          << " (" << *player << ") "
+          << "moved on " << move << ". "
+          << switchedList->size() << " enemy's chips were captured.";
+        lGameLog->addLine(o.str());
+        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+    }
+
+    void onStarted(ReversiEngine *engine) override {
+        fetchField();
+        ostringstream o;
+        o << "Game started.";
+        lGameLog->addLine(o.str());
+        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+    }
+
+    void onFinished(ReversiEngine *engine, Field *snap) override {
+        auto stats = snap->getStatistics();
+        Chip* winner = (stats[Chip::BLACK] > stats[Chip::WHITE])
+                ? Chip::BLACK
+                : (stats[Chip::BLACK] > stats[Chip::WHITE])
+                    ? Chip::WHITE
+                    : Chip::NONE;
+
+        ostringstream o;
+        o << "Game finished. ";
+        if (winner != Chip::NONE) {
+            o << "Player " << engine->getPlayerNumber(winner)
+            << " (" << *winner << ") "
+            << "is winner. Congratulations.";
+        } else {
+            o << "Draw.";
+        }
+        lGameLog->addLine(o.str());
+        lGameLog->addLine("Press <<START>> to start the game!");
+        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+    }
+
+    void onError(ReversiEngine *engine, exception &error) override {
+        lGameLog->addLine(error.what());
+        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+    }
+};
+
+struct StartStopBtnListener : ButtonListener {
+    bool onClicked() override {
+        if (engine->isStarted()) {
+            engine->finishGame();
+        } else {
+            engine->startGame();
+        }
+        return true;
+    }
+};
+
 //---------------------------
 
 void initApp(HWND parent) {
+    MAIN_WINDOW_HWND = parent;
+    engine = new ReversiEngine();
+    engine->setObserver(new GameObserver());
     // init button field indexes
     bfField = new ButtonsField(60, 60, 50, 20, 4);
     // todo engine
@@ -50,23 +159,30 @@ void initApp(HWND parent) {
     rbgSecondPlayer = new RadioButtonGroup(500, 200, {"AI", "Human"});
     rbgSecondPlayer->setListener(new SecondPlayerListener());
 
-    lGameMessages = new Label(60, bfField->getViewRect().bottom + 10, 450, 40);
-    lGameMessages->setText("Hi! Start the game!");
+    lGameLog = new MultilineLabel(60, bfField->getViewRect().bottom + 10, 450, 40, 4);
+    lGameLog->addLine("Press <<START>> to start the game!");
 
     lScore = new Label(60, 20, 450, 40, true, false);
     lScore->setText("Player 1 (BLACK) 20 : 25 (WHITE) Player 2");
+
+    auto r = rbgSecondPlayer->getViewRect();
+    btnStartStop = new Button(r.left, r.top + 200, 100, 61);
+    btnStartStop->setListener(new StartStopBtnListener());
+    btnStartStop->setText("START");
 
     drawables.push_back(lPlayerColor);
     drawables.push_back(rbgPlayerColor);
     drawables.push_back(lSecondPlayer);
     drawables.push_back(rbgSecondPlayer);
-    drawables.push_back(lGameMessages);
+    drawables.push_back(lGameLog);
     drawables.push_back(lScore);
+    drawables.push_back(btnStartStop);
     // hard object must be the last
     drawables.push_back(bfField);
 
     clickables.push_back(rbgPlayerColor);
     clickables.push_back(rbgSecondPlayer);
+    clickables.push_back(btnStartStop);
     clickables.push_back(bfField);
 }
 

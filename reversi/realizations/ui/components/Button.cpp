@@ -23,14 +23,14 @@ void Button::onPaint(HDC hdc) const {
     SelectObject(hdc, GetStockObject(DC_PEN));
     SetDCPenColor(hdc, lineColor);
 
-    Rectangle(hdc, rect.left, rect.top, rect.top, rect.bottom);
+    Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
 
     SelectObject(hdc, GetStockObject(DC_BRUSH));
     SetDCBrushColor(hdc, textColor);
     SelectObject(hdc, GetStockObject(DC_PEN));
     SetDCPenColor(hdc, textColor);
 
-    DrawText(hdc, TEXT (text.c_str()), -1, const_cast<LPRECT>(&rect), DT_CENTER | DT_VCENTER);
+    DrawText(hdc, TEXT (text.c_str()), -1, const_cast<LPRECT>(&rect), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 }
 
 void Button::setListener(ButtonListener *listener) { Button::listener = listener; }

@@ -34,6 +34,7 @@
 #include "ui/components/Clickable.h"
 #include "ui/components/Palette.h"
 #include "ui/components/Label.h"
+#include "ui/components/MultilineLabel.h"
 #include "ui/components/Button.h"
 #include "ui/components/ChipButton.h"
 #include "ui/components/RadioButtonGroup.h"

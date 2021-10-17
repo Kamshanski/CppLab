@@ -58,9 +58,9 @@ public:
     PointsList* getAvailableMoves();
     PointsList* getAvailableAimsForMove(Point point);
     int getPlayerNumber(Chip* chip);
+    Chip* getPlayersChip(int playerNum);
     Chip* getCurrentPlayer();
 private:
-    void checkIsNotStarted() const;
     void checkIsStarted() const;
     void initDefaultValues();
     PointsList* findAllPossibleMovesFor(Chip* player);
@@ -71,5 +71,7 @@ private:
     static bool containsPoint(PointsList* list, Point point);
     void switchPlayer();
     void clearMoveData();
+    void tryToNotifyOnError(std::exception* ex) const;
+    IllegalGameStateException* gameStateException() const;
 };
 

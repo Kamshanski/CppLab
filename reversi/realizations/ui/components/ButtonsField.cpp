@@ -97,4 +97,17 @@ void ButtonsField::setListener(ButtonFieldListener *listener) {
     ButtonsField::listener = listener;
 }
 
+void ButtonsField::setChipBlack(int i, int j) {
+    getButton(i, j)->setChipColor(ChipButton::CHIP_BLACK);
+    getButton(i, j)->setChipVisibility(true);
+}
+void ButtonsField::setChipWhite(int i, int j) {
+    getButton(i, j)->setChipColor(ChipButton::CHIP_WHITE);
+    getButton(i, j)->setChipVisibility(true);
+}
+
+void ButtonsField::setChipInvisible(int i, int j) {
+    getButton(i, j)->setChipVisibility(false);
+}
+
 

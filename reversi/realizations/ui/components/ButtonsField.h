@@ -30,6 +30,10 @@ public:
 
     bool onMouseMove(int pX, int pY);
 
+    void setChipInvisible(int i, int j);
+    void setChipBlack(int i, int j);
+    void setChipWhite(int i, int j);
+
     void setListener(ButtonFieldListener *listener);
     ChipButton* getButton(int i, int j) const;
 };

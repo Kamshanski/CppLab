@@ -1,6 +1,5 @@
 #include "includeAll.h"
 #include "utilities.cpp"
-#include "ReversiEngine.h"
 
 
 bool ReversiEngine::isStarted() const {
@@ -8,7 +7,13 @@ bool ReversiEngine::isStarted() const {
 }
 
 void ReversiEngine::finishGame() {
-    checkIsStarted();
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return;
+    }
+
+    auto snap = getSnapshot();
+
     _isStarted = false;
 
     clearVectorOfPointers(availableMoves);
@@ -17,11 +22,16 @@ void ReversiEngine::finishGame() {
     availableMoves = enemyMoves = nullptr;
     aims = nullptr;
 
-    observer->onFinished(this, getSnapshot());
+    observer->onFinished(this, snap);
+    delete snap;
+
 }
 
 GameState ReversiEngine::next() {
-    checkIsStarted();
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return FINISHED;
+    }
 
     availableMoves = findAllPossibleMovesFor(currentPlayer);
     enemyMoves = findAllPossibleMovesFor(currentPlayer->getEnemy());
@@ -50,14 +60,23 @@ GameState ReversiEngine::next() {
 }
 
 void ReversiEngine::move(Point target, Chip* player) {
-    checkIsStarted();
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return;
+    }
 
-    if (availableMoves == nullptr)
-        throw IllegalGameStateException(_isStarted, "You should start game and invoke next() before the first move()");
-    if (!containsPoint(availableMoves, target))
-        throw IllegalMoveException(currentPlayer, target.getX(), target.getY(), "Thus no aims can be found");
-    if (player != currentPlayer)
-        throw IllegalChipException(player, "This player can't move now. It's enemy's turn");
+    if (availableMoves == nullptr) {
+        tryToNotifyOnError(new IllegalGameStateException(_isStarted,"You should start game and invoke next() before the first move()"));
+        return;
+    }
+    if (!containsPoint(availableMoves, target)) {
+        tryToNotifyOnError(new IllegalMoveException(currentPlayer, target.getX(), target.getY(), "Thus no aims can be found"));
+        return;
+    }
+    if (player != currentPlayer) {
+        tryToNotifyOnError(new IllegalChipException(player, "This player can't move now. It's enemy's turn"));
+        return;
+    }
 
     PointsList* aimList = getAvailableAimsForMove(target);
     for (Point* aim : *aimList) {
@@ -75,7 +94,10 @@ void ReversiEngine::move(Point target, Chip* player) {
 // PUBLIC
 
 void ReversiEngine::startGame() {
-    checkIsNotStarted();
+    if (isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return;
+    }
     this->player1 = requireNonNull(player1, "player1");
     this->player2 = requireNonNull(player2, "player2");
 
@@ -88,24 +110,38 @@ void ReversiEngine::startGame() {
 
 
 Field *ReversiEngine::getSnapshot() const{
-    checkIsStarted();
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return nullptr;
+    }
     return field->getSnapshot();
 }
 
 PointsList* ReversiEngine::getAvailableMoves() {
-    checkIsStarted();
-    if (availableMoves == nullptr)
-        throw IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()");
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return nullptr;
+    }
+    if (availableMoves == nullptr) {
+        tryToNotifyOnError(new IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()"));
+        return nullptr;
+    }
     return availableMoves;
 }
 
 PointsList* ReversiEngine::getAvailableAimsForMove(Point point) {
-    checkIsStarted();
-    if (availableMoves == nullptr)
-        throw IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()");
-
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return nullptr;
+    }
+    if (availableMoves == nullptr) {
+        tryToNotifyOnError(
+                new IllegalGameStateException(_isStarted, "You have to invoke next() before the first move()"));
+        return nullptr;
+    }
     if (!containsPoint(availableMoves, point)) {
-        throw IllegalMoveException(currentPlayer, point.getX(), point.getY(), "Thus no aims can be found");
+        tryToNotifyOnError(new IllegalMoveException(currentPlayer, point.getX(), point.getY(), "Thus no aims can be found"));
+        return nullptr;
     }
 
     PointsList* aimsList = getOrNull(*aims, point);
@@ -208,7 +244,10 @@ void ReversiEngine::initDefaultValues() {
 }
 
 void ReversiEngine::switchPlayer() {
-    checkIsStarted();
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return;
+    }
     Chip* enemy = currentPlayer->getEnemy();
     currentPlayer = enemy;
     if (observer != nullptr) observer->onSwitchPlayers(this);
@@ -224,17 +263,26 @@ int ReversiEngine::getPlayerNumber(Chip *chip) {
 
 
 int ReversiEngine::getMoveCounter() const {
-    checkIsStarted();
+    if (!isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return -1;
+    }
     return moveCounter;
 }
 
 void ReversiEngine::setFirstBlackSecondWhite() {
-    checkIsNotStarted();
+    if (isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return;
+    }
     player1 = Chip::BLACK;
     player2 = Chip::WHITE;
 }
 void ReversiEngine::setFirstWhiteSecondBlack() {
-    checkIsNotStarted();
+    if (isStarted()) {
+        tryToNotifyOnError(gameStateException());
+        return;
+    }
     player1 = Chip::WHITE;
     player2 = Chip::BLACK;
 }
@@ -243,11 +291,6 @@ ReversiEngine::ReversiEngine() {
     initDefaultValues();
 }
 
-void ReversiEngine::checkIsNotStarted() const {
-    if (_isStarted) {
-        throw IllegalGameStateException(_isStarted);
-    }
-}
 void ReversiEngine::checkIsStarted() const {
     if (!_isStarted) {
         throw IllegalGameStateException(_isStarted);
@@ -276,6 +319,26 @@ void ReversiEngine::clearMoveData() {
     clearMapOfVectorsOfPointers(aims);
     availableMoves = enemyMoves = nullptr;
     aims = nullptr;
+}
+
+Chip* ReversiEngine::getPlayersChip(int playerNum) {
+    if (playerNum == 1) {
+        return player1;
+    } else if (playerNum == 2) {
+        return player2;
+    }
+    tryToNotifyOnError(new IllegalPlayerNumberException(playerNum));
+}
+
+void ReversiEngine::tryToNotifyOnError(std::exception* ex) const {
+    if (observer != nullptr)
+        observer->onError(const_cast<ReversiEngine*>(this), *ex);
+    else
+        throw *ex;
+}
+
+IllegalGameStateException *ReversiEngine::gameStateException() const{
+    return new IllegalGameStateException(isStarted());
 }
 
 
