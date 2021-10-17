@@ -2,7 +2,7 @@
 #include "includeAll.h"
 
 
-class ButtonsField : public Drawable, public Clickable {
+class ButtonsField : public Clickable {
 public:
     // constants
     static const int BUTTON_FIELD_OFFSET;
@@ -24,6 +24,7 @@ private:
 
 public:
     void onPaint(HDC hdc) const override;
+    RECT getViewRect() const override;
     bool onMouseMove(int pX, int pY);
     bool onClick(int pX, int pY) override;
 

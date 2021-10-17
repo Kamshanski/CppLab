@@ -94,5 +94,9 @@ pair<int, int> ButtonsField::findEnteredButton(int pX, int pY) {
 
 ChipButton *ButtonsField::getButton(int i, int j) const { return buttons[j][i]; }
 
+RECT ButtonsField::getViewRect() const {
+    return RECT {startX, startY, endX, endY};
+}
+
 
 

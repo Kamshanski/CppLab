@@ -28,6 +28,8 @@ public:
 
     void onPaint(HDC hdc) const override;
 
+    RECT getViewRect() const override;
+
     bool containsPoint(int pX, int pY);
 
     // setters

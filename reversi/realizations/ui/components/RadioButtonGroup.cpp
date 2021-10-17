@@ -93,4 +93,8 @@ vector<string>& RadioButtonGroup::getOptions() {
     return options;
 }
 
+RECT RadioButtonGroup::getViewRect() const {
+    return RECT {startX, startY, endX, endY};
+}
+
 

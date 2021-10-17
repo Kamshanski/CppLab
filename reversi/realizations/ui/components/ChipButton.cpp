@@ -68,6 +68,10 @@ void ChipButton::setChipColor(COLORREF chipColor) { ChipButton::chipColor = chip
 
 bool ChipButton::isChipVisible() const { return showChip; }
 
+RECT ChipButton::getViewRect() const {
+    return btnRect;
+}
+
 
 
 

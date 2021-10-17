@@ -2,7 +2,7 @@
 #include "includeAll.h"
 struct RadioButtonGroupListener;
 
-class RadioButtonGroup : public Drawable, public Clickable {
+class RadioButtonGroup : public Clickable {
     static const COLORREF SELECTED;
     static const COLORREF CLEAR;
     static const COLORREF LINE_COLOR;
@@ -24,6 +24,7 @@ public:
     void setListener(RadioButtonGroupListener *listener);
 
     void onPaint(HDC hdc) const override;
+    RECT getViewRect() const override;
     bool onClick(int pX, int pY) override;
     int getSelection() const;
     vector<string>& getOptions();

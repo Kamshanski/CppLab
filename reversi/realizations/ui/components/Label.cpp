@@ -1,4 +1,6 @@
 #include "includeAll.h"
+#include "Label.h"
+
 
 Label::Label(int x, int y, int width, int height, bool centerAlign, bool singleLine) :
         centerAlign(centerAlign), singleLine(singleLine) {
@@ -24,5 +26,9 @@ void Label::setColor(COLORREF color) {
 
 void Label::setText(string text) {
     this->text = std::move(text);
+}
+
+RECT Label::getViewRect() const {
+    return rect;
 }
 

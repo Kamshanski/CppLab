@@ -94,9 +94,8 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
             bool hasChanges = false;
             hasChanges |= bfField->onMouseMove(pX, pY);
             if (hasChanges) {
-                RECT windowRect;
-                GetClientRect(hwnd, &windowRect);
-                InvalidateRect(hwnd, &windowRect, NULL);
+                RECT changedRect = bfField->getViewRect();
+                InvalidateRect(hwnd, &changedRect, NULL);
             }
 
             useDefaultProc = false;
@@ -105,14 +104,22 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
         case WM_LBUTTONDOWN: {
             int pX = GET_X_LPARAM(lParam);
             int pY = GET_Y_LPARAM(lParam);
-            for(Clickable* view: clickables) {
-                if (view->onClick(pX, pY))
-                    break;
-            }
 
-            RECT windowRect;
-            GetClientRect(hwnd, &windowRect);
-            InvalidateRect(hwnd, &windowRect, NULL);
+            bool clickedAny = false;
+            RECT changedRect;
+            GetClientRect(hwnd, &changedRect);
+            InvalidateRect(hwnd, &changedRect, NULL);
+
+            for(Clickable* view: clickables) {
+                if (view->onClick(pX, pY)) {
+                    clickedAny = true;
+                    changedRect = view->getViewRect();
+                    break;
+                }
+            }
+            if (clickedAny) {
+                InvalidateRect(hwnd, &changedRect, NULL);
+            }
 
             useDefaultProc = false;
             break;

@@ -3,7 +3,7 @@
 
 struct ButtonListener;
 
-class Button: public Drawable, public Clickable {
+class Button: public Clickable {
     string text;
 
     RECT rect;
@@ -18,6 +18,8 @@ public:
     bool onClick(int pX, int pY) override;
 
     void onPaint(HDC hdc) const override;
+
+    RECT getViewRect() const override;
 
     void setListener(ButtonListener *listener);
 

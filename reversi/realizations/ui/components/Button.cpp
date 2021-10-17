@@ -1,8 +1,8 @@
 #include <utility>
 
 #include "includeAll.h"
+#include "Button.h"
 
-// TODO: invalidate rect заменить только на изменённый rect
 
 Button::Button(int x, int y, int width, int height) {
     rect = { x, y, x + width, y + height};
@@ -37,4 +37,8 @@ void Button::setListener(ButtonListener *listener) { Button::listener = listener
 
 void Button::setText(string text) {
     Button::text = std::move(text);
+}
+
+RECT Button::getViewRect() const {
+    return rect;
 }
