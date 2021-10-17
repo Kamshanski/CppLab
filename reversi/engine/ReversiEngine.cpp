@@ -38,6 +38,9 @@ GameState ReversiEngine::next() {
         return GameState::MAY_MOVE;
     } else {
         observer->onSkipped(this, currentPlayer);
+        switchPlayer();
+        moveCounter++;
+        clearMoveData();
         if (enemyMoves->empty()) {
             finishGame();
             return GameState::FINISHED;
@@ -66,12 +69,7 @@ void ReversiEngine::move(Point target, Chip* player) {
 
     switchPlayer();
     moveCounter++;
-
-    clearVectorOfPointers(availableMoves);
-    clearVectorOfPointers(enemyMoves);
-    clearMapOfVectorsOfPointers(aims);
-    availableMoves = enemyMoves = nullptr;
-    aims = nullptr;
+    clearMoveData();
 }
 
 // PUBLIC
@@ -213,6 +211,7 @@ void ReversiEngine::switchPlayer() {
     checkIsStarted();
     Chip* enemy = currentPlayer->getEnemy();
     currentPlayer = enemy;
+    if (observer != nullptr) observer->onSwitchPlayers(this);
 }
 
 int ReversiEngine::getPlayerNumber(Chip *chip) {
@@ -269,6 +268,14 @@ bool ReversiEngine::containsPoint(PointsList* list, Point point) {
 
 Chip *ReversiEngine::getCurrentPlayer() {
     return currentPlayer;
+}
+
+void ReversiEngine::clearMoveData() {
+    clearVectorOfPointers(availableMoves);
+    clearVectorOfPointers(enemyMoves);
+    clearMapOfVectorsOfPointers(aims);
+    availableMoves = enemyMoves = nullptr;
+    aims = nullptr;
 }
 
 

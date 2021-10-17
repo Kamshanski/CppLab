@@ -6,6 +6,8 @@ void GameListener::onMoved(ReversiEngine *engine, Chip *player, Point move, Poin
 
 void GameListener::onFinished(ReversiEngine *engine, Field *snap) {}
 
+void GameListener::onSwitchPlayers(ReversiEngine *engine) {}
+
 void GameListener::onStarted(ReversiEngine *engine) {}
 
 void GameListener::onError(ReversiEngine *engine, std::exception& error) {}
