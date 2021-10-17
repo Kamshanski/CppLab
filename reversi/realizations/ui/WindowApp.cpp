@@ -12,6 +12,7 @@ RadioButtonGroup* rbgSecondPlayer = nullptr;
 Label* lPlayerColor = nullptr;
 Label* lSecondPlayer = nullptr;
 Label* lGameMessages = nullptr;
+Label* lScore = nullptr;
 
 vector<Drawable*> drawables;
 vector<Clickable*> clickables;
@@ -47,31 +48,26 @@ void initApp(HWND parent) {
     rbgSecondPlayer = new RadioButtonGroup(500, 200, {"AI", "Human"});
     rbgSecondPlayer->setListener(new SecondPlayerListener());
 
-    lGameMessages = new Label(60, 500, 450, 40);
+    lGameMessages = new Label(60, 530, 450, 40);
     lGameMessages->setText("Hi! Start the game!");
 
-    drawables.push_back(bfField);
+    lScore = new Label(60, 20, 450, 40, true, false);
+    lScore->setText("Player 1 (BLACK) 20 : 25 (WHITE) Player 2");
+
     drawables.push_back(lPlayerColor);
     drawables.push_back(rbgPlayerColor);
     drawables.push_back(lSecondPlayer);
     drawables.push_back(rbgSecondPlayer);
     drawables.push_back(lGameMessages);
+    drawables.push_back(lScore);
+    // hard object must be the last
+    drawables.push_back(bfField);
 
     clickables.push_back(rbgPlayerColor);
     clickables.push_back(rbgSecondPlayer);
     clickables.push_back(bfField);
 }
 
-bool processClick(int pX, int pY) {
-    bool needToRedraw = false;
-    needToRedraw |= bfField->onClick(pX, pY);
-    needToRedraw |= rbgPlayerColor->onClick(pX, pY);
-    needToRedraw |= rbgSecondPlayer->onClick(pX, pY);
-
-//    string text = ("You pressed button " + to_string(LOWORD(btnId)));
-//    MessageBox(parent, text.c_str(), "MessageBox", MB_OK | MB_ICONWARNING);
-    return needToRedraw;
-}
 
 LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
 
@@ -95,7 +91,20 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
         case WM_MOUSEMOVE: {
             int pX = GET_X_LPARAM(lParam);
             int pY = GET_Y_LPARAM(lParam);
+            bool hasChanges = false;
+            hasChanges |= bfField->onMouseMove(pX, pY);
+            if (hasChanges) {
+                RECT windowRect;
+                GetClientRect(hwnd, &windowRect);
+                InvalidateRect(hwnd, &windowRect, NULL);
+            }
 
+            useDefaultProc = false;
+            break;
+        }
+        case WM_LBUTTONDOWN: {
+            int pX = GET_X_LPARAM(lParam);
+            int pY = GET_Y_LPARAM(lParam);
             for(Clickable* view: clickables) {
                 if (view->onClick(pX, pY))
                     break;
@@ -105,18 +114,6 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
             GetClientRect(hwnd, &windowRect);
             InvalidateRect(hwnd, &windowRect, NULL);
 
-            useDefaultProc = false;
-            break;
-        }
-        case WM_LBUTTONDOWN: {
-            int pX = GET_X_LPARAM(lParam);
-            int pY = GET_Y_LPARAM(lParam);
-            bool hasChanges = processClick(pX, pY);
-            if (hasChanges) {
-                RECT windowRect;
-                GetClientRect(hwnd, &windowRect);
-                InvalidateRect(hwnd, &windowRect, NULL);
-            }
             useDefaultProc = false;
             break;
         }

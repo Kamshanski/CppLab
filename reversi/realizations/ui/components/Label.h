@@ -1,13 +1,13 @@
 #pragma once
 #include "includeAll.h"
 class Label : public Drawable {
-    string text;
-    int x, y;
-    int width, height;
+    string text = "";
     RECT rect;
     COLORREF color = Color::BLACK;
+    bool centerAlign = false;
+    bool singleLine = true;
 public:
-    Label(int x, int y, int width, int height);
+    Label(int x, int y, int width, int height, bool centerAlign = false, bool singleLine = true);
 
     void onPaint(HDC hdc) const override;
     void setColor(COLORREF chipColor);
