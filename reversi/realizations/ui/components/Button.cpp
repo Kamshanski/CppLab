@@ -10,6 +10,11 @@ right Specifies the x-coordinate of the lower-right corner of the rectangle.
 bottom Specifies the y-coordinate of the lower-right corner of the rectangle.
  */
 
+const COLORREF Button::SELECTED = Color::YELLOW;
+const COLORREF Button::CLEAR = Color::GREY;
+const COLORREF Button::CHIP_BLACK = Color::BLACK;
+const COLORREF Button::CHIP_WHITE = Color::WHITE;
+const COLORREF Button::LINE_COLOR = Color::BLACK;
 const int Button::SIZE = 50;
 const int Button::CHIP_SIZE = 20;
 
@@ -21,7 +26,7 @@ Button::Button(int x, int y) : x(x), y(y) {
     int dPlus = (btnSize + chipSize) / 2;
     int dMinus = (btnSize - chipSize) / 2;
 
-    chipEllipse = {
+    chipRect = {
             x + dMinus,
             y + dMinus,
             x + dPlus,
@@ -32,13 +37,20 @@ Button::Button(int x, int y) : x(x), y(y) {
 
 void Button::onPaint(HDC hdc) const {
     SelectObject(hdc, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(hdc, color);
+    SetDCBrushColor(hdc, btnColor);
     SelectObject(hdc, GetStockObject(DC_PEN));
-    SetDCPenColor(hdc, Color::WHITE);
+    SetDCPenColor(hdc, LINE_COLOR);
 
     Rectangle(hdc, btnRect.left, btnRect.top, btnRect.right, btnRect.bottom);
 
-    Ellipse(hdc, chipEllipse.left, chipEllipse.top, chipEllipse.right, chipEllipse.bottom);
+    if (showChip) {
+        SelectObject(hdc, GetStockObject(DC_BRUSH));
+        SetDCBrushColor(hdc, chipColor);
+        SelectObject(hdc, GetStockObject(DC_PEN));
+        SetDCPenColor(hdc, LINE_COLOR);
+
+        Ellipse(hdc, chipRect.left, chipRect.top, chipRect.right, chipRect.bottom);
+    }
 
 }
 
@@ -47,11 +59,15 @@ bool Button::containsPoint(int pX, int pY) {
            (y <= pY && pY <= (y + Button::SIZE));
 }
 
-// getters setters
-pair<int, int> Button::getPosition() const {return {x, y};}
-void Button::setPosition(int x, int y) { Button::x = x;  Button::y = y; }
-COLORREF Button::getColor() const {return color;}
-void Button::setColor(COLORREF color) {Button::color = color;}
+
+
+// setters
+void Button::setBtnColor(COLORREF btnColor) { Button::btnColor = btnColor; }
+void Button::setChipVisibility(bool showChip) { Button::showChip = showChip; }
+void Button::setChipColor(COLORREF chipColor) { Button::chipColor = chipColor; }
+
+bool Button::isChipVisible() const { return showChip; }
+
 
 
 

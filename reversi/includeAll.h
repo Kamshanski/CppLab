@@ -15,6 +15,7 @@
 #include <mutex>
 #include <d2d1.h>
 #include <windowsx.h>
+#include <math.h>
 
 #include "utilities.h"
 #include "Chip.h"
@@ -34,6 +35,7 @@
 //#include "ui/components/Label.h"
 //#include "ui/components/Window.h"
 #include "ui/components/Button.h"
+#include "ui/components/RadioButtonGroup.h"
 #include "ui/components/ButtonFieldListener.h"
 #include "ui/components/ButtonsField.h"
 #include "ui/components/ButtonFieldListenerImpl.h"

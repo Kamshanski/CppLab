@@ -43,22 +43,22 @@ void ButtonsField::onPaint(HDC hdc) {
 
 bool ButtonsField::onMouseMove(int pX, int pY) {
     if ((startX <= pX && pX <= endX) && (startY <= pY && pY <= endY)) {
-        pair<int, int> coords = findEnteredButton(pX, pY);
-        if (coords.first == -1 && enteredBtnIndexes.first > -1) {
+        pair<int, int> indexes = findEnteredButton(pX, pY);
+        if (indexes.first == -1 && enteredBtnIndexes.first > -1) {
             if (listener != nullptr)
                 listener->setUnenteredColors(this);
-            enteredBtnIndexes = coords;
+            enteredBtnIndexes = indexes;
             return true;
             // TODO test
-        } else if (coords.first > -1) {
-            if (coords.first != enteredBtnIndexes.first ||
-                coords.second != enteredBtnIndexes.second) {
+        } else if (indexes.first > -1) {
+            if (indexes.first != enteredBtnIndexes.first ||
+                indexes.second != enteredBtnIndexes.second) {
                 if (listener != nullptr)
-                    listener->setEnteredColors(this, coords.first, coords.second);
-                enteredBtnIndexes = coords;
+                    listener->setEnteredColors(this, indexes.first, indexes.second);
+                enteredBtnIndexes = indexes;
                 return true;
             }
-        } else if (coords.first > -1 && enteredBtnIndexes.first > -1) {
+        } else if (indexes.first > -1 && enteredBtnIndexes.first > -1) {
 
         }
     } else if (enteredBtnIndexes.first > -1) {
@@ -70,6 +70,16 @@ bool ButtonsField::onMouseMove(int pX, int pY) {
     return false;
 }
 
+bool ButtonsField::onClick(int pX, int pY) {
+    pair<int, int> indexes = findEnteredButton(pX, pY);
+    if (indexes.first > -1) {
+        Button* btn = getButton(indexes.first, indexes.second);
+        btn->setChipVisibility(!btn->isChipVisible());
+        btn->setChipColor(Button::CHIP_WHITE);
+        return true;
+    }
+    return false;
+}
 
 pair<int, int> ButtonsField::findEnteredButton(int pX, int pY) {
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
@@ -81,5 +91,6 @@ pair<int, int> ButtonsField::findEnteredButton(int pX, int pY) {
     }
     return {-1 ,-1};
 }
+
 
 

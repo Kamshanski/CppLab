@@ -25,6 +25,7 @@ private:
 public:
     void onPaint(HDC hdc);
     bool onMouseMove(int pX, int pY);
+    bool onClick(int pX, int pY);
 
 
 public:
