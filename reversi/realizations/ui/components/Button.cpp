@@ -1,25 +1,96 @@
 #include "includeAll.h"
+#include "Button.h"
 
 
-void Button::setListener(OnButtonListener* listener) {
-    getParent()->addListener(listener);
-    Button::listener = listener;
+/*
+RECT
+left Specifies the x-coordinate of the upper-left corner of the rectangle.
+top Specifies the y-coordinate of the upper-left corner of the rectangle.
+right Specifies the x-coordinate of the lower-right corner of the rectangle.
+bottom Specifies the y-coordinate of the lower-right corner of the rectangle.
+ */
+
+const int Button::SIZE = 50;
+const int Button::CHIP_SIZE = 20;
+
+
+Button::Button(int x, int y) : x(x), y(y) {
+    btnRect = {x, y, x + Button::SIZE, y + Button::SIZE };
+    int btnSize = Button::SIZE;
+    int chipSize = Button::CHIP_SIZE;
+    int dPlus = (btnSize + chipSize) / 2;
+    int dMinus = (btnSize - chipSize) / 2;
+
+    chipEllipse = {
+            x + dMinus,
+            y + dMinus,
+            x + dPlus,
+            y + dPlus
+    };
 }
-void Button::removeListener() {
-    if (Button::listener != nullptr) {
-        getParent()->removeListener(listener);
-        delete Button::listener;
-        Button::listener = nullptr;
-    }
-}
 
 
-long Button::windowFlags() {
-    return WS_CHILD|BS_PUSHBUTTON|WS_VISIBLE;
+void Button::onPaint(HDC hdc) const {
+    SelectObject(hdc, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(hdc, color);
+    SelectObject(hdc, GetStockObject(DC_PEN));
+    SetDCPenColor(hdc, Color::WHITE);
+
+    Rectangle(hdc, btnRect.left, btnRect.top, btnRect.right, btnRect.bottom);
+
+    Ellipse(hdc, chipEllipse.left, chipEllipse.top, chipEllipse.right, chipEllipse.bottom);
+
 }
 
-string Button::className() {
-    return "button";
+bool Button::containsPoint(int pX, int pY) {
+    return (x <= pX && pX <= (x + Button::SIZE)) &&
+           (y <= pY && pY <= (y + Button::SIZE));
 }
+
+// getters setters
+pair<int, int> Button::getPosition() const {return {x, y};}
+void Button::setPosition(int x, int y) { Button::x = x;  Button::y = y; }
+COLORREF Button::getColor() const {return color;}
+void Button::setColor(COLORREF color) {Button::color = color;}
+
+
+
+// старая функция
+//int Button::onPaint(LPDRAWITEMSTRUCT item) {
+////    if (modCount == drawCount) {
+////        return TRUE;
+////    }
+//
+////    static HFONT hfontButton = CreateFont(16, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET,
+////                                          OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+////                                          DEFAULT_QUALITY, DEFAULT_PITCH, "Arial Black");
+////
+////    /* установить отображение текста */
+////    SetBkMode(item->hDC, TRANSPARENT);
+////    SetTextColor(item->hDC, Color::BLACK); // text color
+////    SelectObject(item->hDC, hfontButton);
+//
+//    /* белый фон при нажатии */
+//    FillRect(item->hDC, &item->rcItem,(HBRUSH)CreateSolidBrush(getColor()));
+////    if(item->itemState & ODS_SELECTED)
+////        FillRect(item->hDC, &item->rcItem, (HBRUSH)CreateSolidBrush(Color::WHITE));
+////    else {
+////        FillRect(item->hDC, &item->rcItem,(HBRUSH)CreateSolidBrush(getColor()));
+////    }
+//
+//    /* нарисовать текст */
+//    int len = GetWindowTextLength(item->hwndItem);
+//    char* buf = new char[len + 1];
+//    GetWindowTextA(item->hwndItem, buf, len + 1);
+//    DrawTextA(item->hDC, buf, len, &item->rcItem, DT_CENTER);
+//
+//    drawCount = modCount;
+//    return TRUE;
+//}
+
+
+
+
+
 
 

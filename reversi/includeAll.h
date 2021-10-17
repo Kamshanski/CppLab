@@ -9,6 +9,12 @@
 #include "array"
 #include "string"
 #include "windows.h"
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <mutex>
+#include <d2d1.h>
+#include <windowsx.h>
 
 #include "utilities.h"
 #include "Chip.h"
@@ -23,8 +29,11 @@
 #include "AiPlayer.h"
 #include "ConsoleReversi.h"
 
-#include "ui/components/View.h"
-#include "ui/components/Label.h"
-#include "ui/components/Window.h"
-#include "ui/components/OnButtonListener.h"
+#include "ui/components/Palette.h"
+//#include "ui/components/View.h"
+//#include "ui/components/Label.h"
+//#include "ui/components/Window.h"
 #include "ui/components/Button.h"
+#include "ui/components/ButtonFieldListener.h"
+#include "ui/components/ButtonsField.h"
+#include "ui/components/ButtonFieldListenerImpl.h"
