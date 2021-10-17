@@ -11,24 +11,38 @@ MultilineLabel::MultilineLabel(int x, int y, int width, int height, int maxLines
 
 void MultilineLabel::addLine(string line) {
     if (maxLines < lines.size()) {
-        std::pop_heap(lines.begin(), lines.end());
+        lines.erase(lines.begin());
     }
-    lines.push_back(line);
+    ostringstream o;
+    std::time_t t = std::time(nullptr);   // get time now
+    std::tm* now = std::localtime(&t);
+    o << std::setfill('0') << std::setw(2) << now->tm_hour << ':'
+      << std::setfill('0') << std::setw(2) << now->tm_min << ':'
+      << std::setfill('0') << std::setw(2) << now->tm_sec << " >> "
+      << line;
+    lines.push_back(o.str());
 }
 
 void MultilineLabel::onPaint(HDC hdc) const {
+    // clear previous text
+    SelectObject(hdc, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(hdc, Color::WHITE);
+    SelectObject(hdc, GetStockObject(DC_PEN));
+    SetDCPenColor(hdc, Color::WHITE);
+    Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+
+    // draw new text
     SelectObject(hdc, GetStockObject(DC_BRUSH));
     SetDCBrushColor(hdc, color);
     SelectObject(hdc, GetStockObject(DC_PEN));
     SetDCPenColor(hdc, color);
-
     long flags = DT_VCENTER;
     flags |= (singleLine) ? DT_SINGLELINE : 0L;
     flags |= (centerAlign) ? DT_CENTER : DT_LEFT;
 
     ostringstream o;
-    for (const string& line : lines) {
-        o << line << "\n";
+    for (int i = lines.size() - 1; i >= 0; --i) {
+        o << lines[i] << "\n";
     }
 
     DrawText(hdc, TEXT (o.str().c_str()), -1, const_cast<LPRECT>(&this->rect), flags);
