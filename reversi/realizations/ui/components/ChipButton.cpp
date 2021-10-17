@@ -15,14 +15,10 @@ const COLORREF ChipButton::CLEAR = Color::GREY;
 const COLORREF ChipButton::CHIP_BLACK = Color::BLACK;
 const COLORREF ChipButton::CHIP_WHITE = Color::WHITE;
 const COLORREF ChipButton::LINE_COLOR = Color::BLACK;
-const int ChipButton::SIZE = 50;
-const int ChipButton::CHIP_SIZE = 20;
 
 
-ChipButton::ChipButton(int x, int y) : x(x), y(y) {
-    btnRect = {x, y, x + ChipButton::SIZE, y + ChipButton::SIZE };
-    int btnSize = ChipButton::SIZE;
-    int chipSize = ChipButton::CHIP_SIZE;
+ChipButton::ChipButton(int x, int y, int btnSize, int chipSize) : x(x), y(y), btnSize(btnSize), chipSize(chipSize) {
+    btnRect = {x, y, x + btnSize, y + btnSize };
     int dPlus = (btnSize + chipSize) / 2;
     int dMinus = (btnSize - chipSize) / 2;
 
@@ -55,8 +51,8 @@ void ChipButton::onPaint(HDC hdc) const {
 }
 
 bool ChipButton::containsPoint(int pX, int pY) {
-    return (x <= pX && pX <= (x + ChipButton::SIZE)) &&
-           (y <= pY && pY <= (y + ChipButton::SIZE));
+    return (x <= pX && pX <= (x + btnSize)) &&
+           (y <= pY && pY <= (y + btnSize));
 }
 
 

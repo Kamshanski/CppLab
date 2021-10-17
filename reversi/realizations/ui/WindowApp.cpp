@@ -36,7 +36,9 @@ struct SecondPlayerListener : RadioButtonGroupListener {
 
 void initApp(HWND parent) {
     // init button field indexes
-    bfField = new ButtonsField(new ButtonFieldListenerImpl(nullptr));
+    bfField = new ButtonsField(60, 60, 50, 20, 4);
+    // todo engine
+    bfField->setListener(new ButtonFieldListenerImpl(nullptr));
 
     lPlayerColor = new Label(500, 60, 150, 20);
     lPlayerColor->setText("Your color:");
@@ -48,7 +50,7 @@ void initApp(HWND parent) {
     rbgSecondPlayer = new RadioButtonGroup(500, 200, {"AI", "Human"});
     rbgSecondPlayer->setListener(new SecondPlayerListener());
 
-    lGameMessages = new Label(60, 530, 450, 40);
+    lGameMessages = new Label(60, bfField->getViewRect().bottom + 10, 450, 40);
     lGameMessages->setText("Hi! Start the game!");
 
     lScore = new Label(60, 20, 450, 40, true, false);

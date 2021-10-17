@@ -2,35 +2,30 @@
 #include "ButtonsField.h"
 
 
-const int ButtonsField::BUTTON_FIELD_OFFSET = 60;
 const int ButtonsField::BTN_FIELD_SIZE = 8;
-const int ButtonsField::GAP = 2;
 
 
-
-ButtonsField::ButtonsField(ButtonFieldListener* listener) : listener(listener){
+ButtonsField::ButtonsField(int x, int y, int elementSize, int chipSize, int gap) : gap(gap) {
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
         buttons[i] = new ChipButton*[BTN_FIELD_SIZE];
     }
 
+    startX = x;
+    startY = y;
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
         for (int j = 0; j < BTN_FIELD_SIZE; ++j) {
-            int x = BUTTON_FIELD_OFFSET + j * (ChipButton::SIZE + GAP);
-            if (j > 0) {
-                x += (j - 1) * GAP;
-            }
+            int btnX = x + j * (elementSize + gap);
 
-            int y = BUTTON_FIELD_OFFSET + i * (ChipButton::SIZE + GAP);
-            if (i > 0) {
-                y += (i - 1) * GAP;
-            }
+            int btnY = y + i * (elementSize + gap);
 
-            setButton(i, j, new ChipButton(x, y));
+            setButton(i, j, new ChipButton(btnX, btnY, elementSize, chipSize));
         }
     }
-    startX = startY = BUTTON_FIELD_OFFSET;
-    endX = endY = BUTTON_FIELD_OFFSET + BTN_FIELD_SIZE * (ChipButton::SIZE + ButtonsField::GAP);
+    int viewSize = BTN_FIELD_SIZE * elementSize + (BTN_FIELD_SIZE - 1) * gap;
+    endX = startX + viewSize;
+    endY = startY + viewSize;
 }
+
 
 void ButtonsField::onPaint(HDC hdc) const {
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
@@ -98,5 +93,8 @@ RECT ButtonsField::getViewRect() const {
     return RECT {startX, startY, endX, endY};
 }
 
+void ButtonsField::setListener(ButtonFieldListener *listener) {
+    ButtonsField::listener = listener;
+}
 
 

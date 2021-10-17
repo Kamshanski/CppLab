@@ -9,11 +9,10 @@ public:
     static const COLORREF CHIP_WHITE;
     static const COLORREF LINE_COLOR;
 
-    static const int SIZE;
-    static const int CHIP_SIZE;
-
 private:
     int x, y;
+    int btnSize;
+    int chipSize;
 
     RECT btnRect;
     COLORREF btnColor = CLEAR;
@@ -24,7 +23,7 @@ private:
 
 
 public:
-    ChipButton(int x, int y);
+    ChipButton(int x, int y, int btnSize, int chipSize);
 
     void onPaint(HDC hdc) const override;
 
