@@ -46,7 +46,7 @@ void RadioButtonGroup::onPaint(HDC hdc) const {
                 rX + SIZE + HORIZONTAL_GAP + TEXT_WIDTH,
                 rY + SIZE};
         DrawText(hdc, TEXT (options[i].c_str()), -1, &textRect,
-                 DT_SINGLELINE | DT_LEFT | DT_VCENTER);
+                 DT_SINGLELINE | DT_CENTER | DT_VCENTER);
     }
 }
 
