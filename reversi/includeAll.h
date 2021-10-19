@@ -16,8 +16,9 @@
 #include <d2d1.h>
 #include <windowsx.h>
 #include <math.h>
+#include <memory>
+#include <stdexcept>
 
-#include "utilities.h"
 #include "Chip.h"
 #include <game_exceptions.h>
 #include "Point.h"

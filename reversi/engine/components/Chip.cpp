@@ -1,4 +1,6 @@
 #include "includeAll.h"
+#include "Chip.h"
+
 
 Chip::Chip(std::string name) : name(std::move(name)) {}
 
@@ -17,5 +19,9 @@ Chip* Chip::getEnemy() {
 
 std::array<Chip*, 3> Chip::values() {
     return {BLACK, WHITE, NONE};
+}
+
+const char* Chip::cstr() {
+    return name.c_str();
 }
 

@@ -10,7 +10,7 @@ public:
 
     Chip* getEnemy();
 
-
+    const char* cstr();
     static std::array<Chip*, 3> values();
 private:
 

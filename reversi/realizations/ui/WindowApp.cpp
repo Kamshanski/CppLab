@@ -1,22 +1,51 @@
-
 #include "includeAll.h"
 
 using namespace std;
 
 //---------------------------
-HWND MAIN_WINDOW_HWND;
 const char g_szClassName[]              = "Reversi Game";
-const string VERTICAL_FIELD_INDEXES[]   = {"1", "2", "3", "4", "5", "6", "7", "8"};
-const string HORIZONTAL_FIELD_INDEXES[]     = {"A", "B", "C", "D", "E", "F", "G", "H"};
 
+const char* VERTICAL_FIELD_INDEXES[]    = {"1", "2", "3", "4", "5", "6", "7", "8"};
+const char* HORIZONTAL_FIELD_INDEXES[]  = {"A", "B", "C", "D", "E", "F", "G", "H"};
+
+const char* LABEL_COLOR             = "Your color:";
+const char* OPTION_BLACK            = "Black (goes first)";
+const char* OPTION_WHITE            = "White";
+const char* LABEL_SECOND_PLAYER     = "Second player:";
+const char* OPTION_AI               = "AI";
+const char* OPTION_HUMAN            = "Human";
+
+const char WINDOW_TITLE[]           = "ReversiGame";
+
+const char* BTN_START               = "START";
+const char* BTN_FINISH              = "FINISH";
+
+const char* LOG_PRESS_START         = "Press <<START>> to start the game!";
+const char* LOG_GAME_STARTED        = "Game started.";
+
+const char SCORE_TXT[]              = "Player 1 (%s) %d : %d (%s) Player 2";
+
+const char LOG_SKIPPED[]            = "Player %s skipped move.";
+const char LOG_MOVED[]              = "Player %d (%s) moved on (%s, %s). Number of captured enemy's chips: %d";
+const char LOG_ILLEGAL_MOVE[]       = "Illegal move with '%s' on position (%s, %s)";
+const char LOG_WINNER[]             = "Game finished. Player %d (%s) is winner. Congratulations.";
+const char LOG_DRAW[]               = "Game finished. Draw.";
+
+//---------------------------
+HWND MAIN_WINDOW_HWND;
 
 ButtonsField* bfField = nullptr;
+
 RadioButtonGroup* rbgPlayerColor = nullptr;
-RadioButtonGroup* rbgSecondPlayer = nullptr;
 Label* lPlayerColor = nullptr;
+
+RadioButtonGroup* rbgSecondPlayer = nullptr;
 Label* lSecondPlayer = nullptr;
+
 Label* lScore = nullptr;
+
 MultilineLabel* lGameLog = nullptr;
+
 Button* btnStartStop = nullptr;
 
 vector<Drawable*> drawables;
@@ -24,8 +53,19 @@ vector<Clickable*> clickables;
 
 ReversiEngine* engine;
 ReversiAi ai;
+
 bool isAiSecondPLayer = true;
+
 //---------------------------
+// https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
+template<typename ... Args>
+string format( const string& format, Args ... args ) {
+    size_t size = snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
+    if( size <= 0 ){ throw runtime_error( "Error during formatting." ); }
+    unique_ptr<char[]> buf( new char[ size ] );
+    snprintf( buf.get(), size, format.c_str(), args ... );
+    return string{ buf.get(), buf.get() + size - 1 }; // We don't want the '\0' inside
+}
 
 void redrawRectangle(HWND hwnd, RECT rect) {
     InvalidateRect(hwnd, &rect, NULL);
@@ -45,24 +85,22 @@ void fetchField() {
     redrawRectangle(MAIN_WINDOW_HWND, bfField->getViewRect());
 }
 
-void displayScore(map<Chip*, int>& stats) {
-    ostringstream o;
-    o << "Player 1 (" << *engine->getPlayersChip(1) << ") "
-      << stats[Chip::BLACK]
-      << " : "
-      << stats[Chip::WHITE]
-      << " (" << *engine->getPlayersChip(2) << ") Player 2";
-    lScore->setText(o.str());
-    redrawRectangle(MAIN_WINDOW_HWND, lScore->getViewRect());
-}
-
 void printToGameLog(string msg) {
     lGameLog->addLine(msg);
     redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
 }
 
+void displayScore(map<Chip*, int>& stats) {
+    string msg = format(SCORE_TXT,
+            engine->getPlayersChip(1)->cstr(),
+            stats[Chip::BLACK],
+            stats[Chip::WHITE],
+            engine->getPlayersChip(2)->cstr());
+    lScore->setText(msg);
+}
+
 void setGameButtonText(string text) {
-    btnStartStop->setText(text);
+    btnStartStop->setText(std::move(text));
     redrawRectangle(MAIN_WINDOW_HWND, btnStartStop->getViewRect());
 }
 
@@ -109,23 +147,22 @@ public:
     }
 
     void onSkipped(ReversiEngine *engine, Chip *player) override {
-        ostringstream o;
-        o << "Player " << *player << " skipped move.";
-        printToGameLog(o.str());
+        string msg = format(LOG_SKIPPED, player->cstr());
+        printToGameLog(msg);
     }
 
     void onMoved(ReversiEngine *engine, Chip *player, Point move, PointsList *switchedList) override {
-        ostringstream o;
-        o << "Player " << engine->getPlayerNumber(player)
-          << " (" << *player << ") "
-          << "moved on "
-          << '(' << VERTICAL_FIELD_INDEXES[move.getX()] << ", " << HORIZONTAL_FIELD_INDEXES[move.getY()] << ')' << ". "
-          << "Number of captured enemy's chips: " << switchedList->size();
-        printToGameLog(o.str());
+        string msg = format(LOG_MOVED,
+               engine->getPlayerNumber(player),
+               player->cstr(),
+               VERTICAL_FIELD_INDEXES[move.getX()],
+               HORIZONTAL_FIELD_INDEXES[move.getY()],
+               switchedList->size());
+        printToGameLog(msg);
     }
 
     void onWaitingForMove(ReversiEngine *engine) override {
-        if (engine->isStarted() && rbgSecondPlayer->getSelection() == 0) {
+        if (engine->isStarted() && isAiSecondPLayer) {
             int humanPlayer = rbgPlayerColor->getSelection();
             Chip* humanChip = (humanPlayer == 0) ? Chip::BLACK : Chip::WHITE;
             Chip* aiChip = humanChip->getEnemy();
@@ -138,10 +175,8 @@ public:
 
     void onStarted(ReversiEngine *engine) override {
         fetchField();
-        ostringstream o;
-        o << "Game started.";
-        printToGameLog(o.str());
-        setGameButtonText("FINISH");
+        printToGameLog(LOG_GAME_STARTED);
+        setGameButtonText(BTN_FINISH);
     }
 
     void onFinished(ReversiEngine *engine, Field *snap) override {
@@ -151,33 +186,26 @@ public:
                 : (stats[Chip::BLACK] < stats[Chip::WHITE])
                     ? Chip::WHITE
                     : Chip::NONE;
-
-        ostringstream o;
-        o << "Game finished. ";
-        if (winner != Chip::NONE) {
-            o << "Player " << engine->getPlayerNumber(winner)
-            << " (" << *winner << ") "
-            << "is winner. Congratulations.";
-        } else {
-            o << "Draw.";
-        }
+        string msg = (winner == Chip::NONE)
+                ? LOG_DRAW
+                : format(LOG_WINNER,
+                         engine->getPlayerNumber(winner),
+                         winner->cstr());
         displayScore(stats);
-        setGameButtonText("START");
+        setGameButtonText(BTN_START);
 
-        printToGameLog(o.str());
-        printToGameLog("Press <<START>> to start the game!");
+        printToGameLog(msg);
+        printToGameLog(LOG_PRESS_START);
     }
 
     void onError(ReversiEngine *engine, exception &error) override {
         auto ime = dynamic_cast<IllegalMoveException*>(&error);
         if ((ime) != nullptr) {
-            ostringstream  o;
-            o << "Illegal move with "
-               << '\"' << *ime->chip << '\"'
-               << " on position "
-               << '(' << VERTICAL_FIELD_INDEXES[ime->x] << ", " << HORIZONTAL_FIELD_INDEXES[ime->y] << ')';
-
-            printToGameLog(o.str());
+            string msg = format(LOG_ILLEGAL_MOVE,
+                                ime->chip->cstr(),
+                                VERTICAL_FIELD_INDEXES[ime->x],
+                                HORIZONTAL_FIELD_INDEXES[ime->y]);
+            printToGameLog(msg);
         } else {
             printToGameLog(error.what());
         }
@@ -246,18 +274,18 @@ void initApp(HWND parent) {
 
     int afterFieldX = 530;
     lPlayerColor = new Label(afterFieldX, 60, 150, 20);
-    lPlayerColor->setText("Your color:");
+    lPlayerColor->setText(LABEL_COLOR);
     drawables.push_back(lPlayerColor);
 
-    rbgPlayerColor = new RadioButtonGroup(afterFieldX, 90, {"Black (goes first)", "White"});
+    rbgPlayerColor = new RadioButtonGroup(afterFieldX, 90, {OPTION_BLACK, OPTION_WHITE});
     rbgPlayerColor->setListener(new PlayerColorListener());
     clickables.push_back(rbgPlayerColor);
     drawables.push_back(rbgPlayerColor);
 
     lSecondPlayer = new Label(afterFieldX, 170, 150, 20);
-    lSecondPlayer->setText("Second player:");
+    lSecondPlayer->setText(LABEL_SECOND_PLAYER);
     drawables.push_back(lSecondPlayer);
-    rbgSecondPlayer = new RadioButtonGroup(afterFieldX, 200, {"AI", "Human"});
+    rbgSecondPlayer = new RadioButtonGroup(afterFieldX, 200, {OPTION_AI, OPTION_HUMAN});
     rbgSecondPlayer->setListener(new SecondPlayerListener());
     drawables.push_back(rbgSecondPlayer);
     clickables.push_back(rbgSecondPlayer);
@@ -265,16 +293,16 @@ void initApp(HWND parent) {
     auto r = rbgSecondPlayer->getViewRect();
     btnStartStop = new Button(afterFieldX, r.top + 200, 100, 61);
     btnStartStop->setListener(new StartStopBtnListener());
-    btnStartStop->setText("START");
+    btnStartStop->setText(BTN_START);
     drawables.push_back(btnStartStop);
     clickables.push_back(btnStartStop);
 
     lGameLog = new MultilineLabel(60, bfField->getViewRect().bottom + 30, 800, 40, 4);
-    lGameLog->addLine("Press <<START>> to start the game!");
+    lGameLog->addLine(LOG_PRESS_START);
     drawables.push_back(lGameLog);
 
     lScore = new Label(60, 10, 450, 40, true, false);
-    lScore->setText("Player 1 (BLACK) XX : XX (WHITE) Player 2");
+    lScore->setText(LOG_PRESS_START);
     drawables.push_back(lScore);
 
 
@@ -316,7 +344,7 @@ void initApp(HWND parent) {
     }
 }
 
-// TODO продебажить пропуски
+//----------------------------
 LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
 
     bool useDefaultProc = true;
@@ -384,20 +412,15 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
             PostQuitMessage(0);
             useDefaultProc = false;
             break;
-        case WM_ERASEBKGND: { // draws background http://deadbeef.narod.ru/work/articles/flicker.htm
-            // DefWindowProc will clear the window using the WNDCLASSEX.hbrBackground member
-            LRESULT result = DefWindowProc (hwnd, msg, wParam, lParam);
-            useDefaultProc = false;
-            break;
-        }
     }
 
     if (useDefaultProc) {
         return DefWindowProc (hwnd, msg, wParam, lParam);
     }
     return 0;
-};
+}
 
+//-------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow){
     WNDCLASSEX wc;
@@ -419,7 +442,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 
     HWND hwnd = CreateWindow(g_szClassName,
-                        "ReversiGame",
+                        WINDOW_TITLE,
                         WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, // disable resize
                         50, 60, 710, 700,
                         NULL,
