@@ -23,6 +23,8 @@ vector<Drawable*> drawables;
 vector<Clickable*> clickables;
 
 ReversiEngine* engine;
+ReversiAi ai;
+bool isAiSecondPLayer = true;
 //---------------------------
 
 void redrawRectangle(HWND hwnd, RECT rect) {
@@ -31,17 +33,24 @@ void redrawRectangle(HWND hwnd, RECT rect) {
 //---------------------------
 struct PlayerColorListener : RadioButtonGroupListener {
     bool onSelected(int idNew, int idPrev, vector<string> &options) override {
-        if (idNew == 0) {
-            return engine->setFirstBlackSecondWhite();
-        } else {
-            return engine->setFirstWhiteSecondBlack();
+        if (!engine->isStarted()) {
+            if (idNew == 0) {
+                return engine->setFirstBlackSecondWhite();
+            } else {
+                return engine->setFirstWhiteSecondBlack();
+            }
         }
+        return false;
     }
 };
 
 struct SecondPlayerListener : RadioButtonGroupListener {
     bool onSelected(int idNew, int idPrev, vector<string> &options) override {
-        return true;
+        if (!engine->isStarted()) {
+            isAiSecondPLayer = (idNew == 0);
+            return true;
+        }
+        return false;
     }
 };
 
@@ -92,6 +101,16 @@ public:
           << "Number of captured enemy's chips: " << switchedList->size();
         lGameLog->addLine(o.str());
         redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+    }
+
+    void onWaitingForMove(ReversiEngine *engine) override {
+        if (engine->isStarted() && rbgSecondPlayer->getSelection() == 0) {
+            int humanPlayer = rbgPlayerColor->getSelection();
+            Chip* humanChip = (humanPlayer == 0) ? Chip::BLACK : Chip::WHITE;
+            Chip* aiChip = humanChip->getEnemy();
+            Point aiMove = ai.chooseMove(engine, aiChip);
+            engine->move(aiMove, aiChip);
+        }
     }
 
     void onStarted(ReversiEngine *engine) override {

@@ -40,3 +40,4 @@
 #include "ui/components/RadioButtonGroup.h"
 #include "ui/components/ButtonsFieldListener.h"
 #include "ui/components/ButtonsField.h"
+#include "ReversiAi.h"
