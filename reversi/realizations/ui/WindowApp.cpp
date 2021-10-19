@@ -30,6 +30,49 @@ bool isAiSecondPLayer = true;
 void redrawRectangle(HWND hwnd, RECT rect) {
     InvalidateRect(hwnd, &rect, NULL);
 }
+
+void fetchField() {
+    auto snap = engine->getSnapshot();
+    auto stats = snap->getStatistics();
+    for (int i = 0; i < snap->getSize(); ++i) {
+        for (int j = 0; j < snap->getSize(); ++j) {
+            if (snap->getChip(i, j) == Chip::BLACK) bfField->setChipBlack(i, j);
+            else if (snap->getChip(i, j) == Chip::WHITE) bfField->setChipWhite(i, j);
+            else if (snap->getChip(i, j) == Chip::NONE) bfField->setChipInvisible(i, j);
+        }
+    }
+    delete snap;
+    redrawRectangle(MAIN_WINDOW_HWND, bfField->getViewRect());
+}
+
+void displayScore(map<Chip*, int>& stats) {
+    ostringstream o;
+    o << "Player 1 (" << *engine->getPlayersChip(1) << ") "
+      << stats[Chip::BLACK]
+      << " : "
+      << stats[Chip::WHITE]
+      << " (" << *engine->getPlayersChip(2) << ") Player 2";
+    lScore->setText(o.str());
+    redrawRectangle(MAIN_WINDOW_HWND, lScore->getViewRect());
+}
+
+void printToGameLog(string msg) {
+    lGameLog->addLine(msg);
+    redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+}
+
+void setGameButtonText(string text) {
+    btnStartStop->setText(text);
+    redrawRectangle(MAIN_WINDOW_HWND, btnStartStop->getViewRect());
+}
+
+void clearButtons(ButtonsField* field) {
+    for (int i = 0; i < ButtonsField::BTN_FIELD_SIZE; ++i) {
+        for (int j = 0; j < ButtonsField::BTN_FIELD_SIZE; ++j) {
+            field->setButtonClear(i, j);
+        }
+    }
+}
 //---------------------------
 struct PlayerColorListener : RadioButtonGroupListener {
     bool onSelected(int idNew, int idPrev, vector<string> &options) override {
@@ -56,40 +99,19 @@ struct SecondPlayerListener : RadioButtonGroupListener {
 
 class GameObserver : public GameListener {
 public:
-    void fetchField() {
-        auto snap = engine->getSnapshot();
-        auto stats = snap->getStatistics();
-        for (int i = 0; i < snap->getSize(); ++i) {
-            for (int j = 0; j < snap->getSize(); ++j) {
-                if (snap->getChip(i, j) == Chip::BLACK) bfField->setChipBlack(i, j);
-                else if (snap->getChip(i, j) == Chip::WHITE) bfField->setChipWhite(i, j);
-                else if (snap->getChip(i, j) == Chip::NONE) bfField->setChipInvisible(i, j);
-            }
-        }
-        delete snap;
-        redrawRectangle(MAIN_WINDOW_HWND, bfField->getViewRect());
-    }
 
     void onSwitchPlayers(ReversiEngine *engine) override {
         fetchField();
         auto snap = engine->getSnapshot();
         auto stats = snap->getStatistics();
-        ostringstream o;
-        o << "Player 1 (" << *engine->getPlayersChip(1) << ") "
-          << stats[Chip::BLACK]
-          << " : "
-          << stats[Chip::WHITE]
-          << " (" << *engine->getPlayersChip(2) << ") Player 2";
-        lScore->setText(o.str());
+        displayScore(stats);
         delete snap;
-        redrawRectangle(MAIN_WINDOW_HWND, lScore->getViewRect());
     }
 
     void onSkipped(ReversiEngine *engine, Chip *player) override {
         ostringstream o;
         o << "Player " << *player << " skipped move.";
-        lGameLog->addLine(o.str());
-        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+        printToGameLog(o.str());
     }
 
     void onMoved(ReversiEngine *engine, Chip *player, Point move, PointsList *switchedList) override {
@@ -99,8 +121,7 @@ public:
           << "moved on "
           << '(' << VERTICAL_FIELD_INDEXES[move.getX()] << ", " << HORIZONTAL_FIELD_INDEXES[move.getY()] << ')' << ". "
           << "Number of captured enemy's chips: " << switchedList->size();
-        lGameLog->addLine(o.str());
-        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
+        printToGameLog(o.str());
     }
 
     void onWaitingForMove(ReversiEngine *engine) override {
@@ -108,8 +129,10 @@ public:
             int humanPlayer = rbgPlayerColor->getSelection();
             Chip* humanChip = (humanPlayer == 0) ? Chip::BLACK : Chip::WHITE;
             Chip* aiChip = humanChip->getEnemy();
-            Point aiMove = ai.chooseMove(engine, aiChip);
-            engine->move(aiMove, aiChip);
+            if (aiChip == engine->getCurrentPlayer()) {
+                Point aiMove = ai.chooseMove(engine, aiChip);
+                engine->move(aiMove, aiChip);
+            }
         }
     }
 
@@ -117,11 +140,8 @@ public:
         fetchField();
         ostringstream o;
         o << "Game started.";
-        lGameLog->addLine(o.str());
-        btnStartStop->setText("FINISH");
-        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
-        redrawRectangle(MAIN_WINDOW_HWND, btnStartStop->getViewRect());
-        engine->analyseGame();
+        printToGameLog(o.str());
+        setGameButtonText("FINISH");
     }
 
     void onFinished(ReversiEngine *engine, Field *snap) override {
@@ -141,11 +161,11 @@ public:
         } else {
             o << "Draw.";
         }
-        lGameLog->addLine(o.str());
-        lGameLog->addLine("Press <<START>> to start the game!");
-        btnStartStop->setText("START");
-        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
-        redrawRectangle(MAIN_WINDOW_HWND, btnStartStop->getViewRect());
+        displayScore(stats);
+        setGameButtonText("START");
+
+        printToGameLog(o.str());
+        printToGameLog("Press <<START>> to start the game!");
     }
 
     void onError(ReversiEngine *engine, exception &error) override {
@@ -156,10 +176,11 @@ public:
                << '\"' << *ime->chip << '\"'
                << " on position "
                << '(' << VERTICAL_FIELD_INDEXES[ime->x] << ", " << HORIZONTAL_FIELD_INDEXES[ime->y] << ')';
-            lGameLog->addLine(o.str());
+
+            printToGameLog(o.str());
         } else {
+            printToGameLog(error.what());
         }
-        redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
     }
 };
 
@@ -175,14 +196,6 @@ struct StartStopBtnListener : ButtonListener {
 };
 
 struct FieldListener: ButtonsFieldListener {
-    void clearButtons(ButtonsField* field) {
-        for (int i = 0; i < ButtonsField::BTN_FIELD_SIZE; ++i) {
-            for (int j = 0; j < ButtonsField::BTN_FIELD_SIZE; ++j) {
-                field->setButtonClear(i, j);
-            }
-        }
-    }
-
 
     void onMouseEnteredButton(ButtonsField *field, int i, int j) override {
         clearButtons(field);

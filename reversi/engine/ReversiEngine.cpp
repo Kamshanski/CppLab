@@ -234,7 +234,7 @@ PointsList *ReversiEngine::pointsBetween(int x1, int y1, int x2, int y2) {
 void ReversiEngine::initDefaultValues() {
     field->clear();
     moveCounter = 0;
-    currentPlayer = (player1 == Chip::BLACK) ? player1 : player2;
+    currentPlayer = Chip::BLACK; // Black is always first
     clearVectorOfPointers(availableMoves);
     clearVectorOfPointers(enemyMoves);
     clearMapOfVectorsOfPointers(aims);
