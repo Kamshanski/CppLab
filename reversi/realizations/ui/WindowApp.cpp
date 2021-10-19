@@ -178,9 +178,11 @@ struct FieldListener: ButtonsFieldListener {
     }
 
     void onClickOnButton(ButtonsField *field, int i, int j) override {
-        engine->move({i, j}, engine->getCurrentPlayer());
-        clearButtons(field);
-        field->setButtonSelected(i, j);
+        if (engine->isStarted()) {
+            engine->move({i, j}, engine->getCurrentPlayer());
+            clearButtons(field);
+            field->setButtonSelected(i, j);
+        }
     }
 };
 
