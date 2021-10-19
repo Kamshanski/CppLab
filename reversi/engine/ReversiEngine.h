@@ -71,6 +71,7 @@ private:
     static PointsList* pointsBetween(int x1, int y1, int x2, int y2);
     static bool containsPoint(PointsList* list, Point point);
     void switchPlayer();
+    void notifyWaitingForMove();
     void clearMoveData();
     void tryToNotifyOnError(std::exception* ex) const;
     IllegalGameStateException* gameStateException() const;

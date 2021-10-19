@@ -54,7 +54,7 @@ GameState ReversiEngine::analyseGame() {
         }
         observer->onSkipped(this, currentPlayer);
         clearMoveData();
-        switchPlayer();
+        notifyWaitingForMove();
         moveCounter++;
         return GameState::SKIPPED;
     }
@@ -250,7 +250,7 @@ void ReversiEngine::switchPlayer() {
     Chip* enemy = currentPlayer->getEnemy();
     currentPlayer = enemy;
     if (observer != nullptr) observer->onSwitchPlayers(this);
-    analyseGame();
+    notifyWaitingForMove();
 }
 
 int ReversiEngine::getPlayerNumber(Chip *chip) {
@@ -345,6 +345,13 @@ IllegalGameStateException *ReversiEngine::gameStateException() const{
 
 Chip *ReversiEngine::getChipOn(Point point) {
     return field->getChip(point.getX(), point.getY());
+}
+
+void ReversiEngine::notifyWaitingForMove() {
+    analyseGame();
+    if (observer != nullptr) {
+        observer->onWaitingForMove(this);
+    }
 }
 
 
