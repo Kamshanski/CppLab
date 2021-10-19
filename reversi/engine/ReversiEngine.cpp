@@ -53,9 +53,9 @@ GameState ReversiEngine::analyseGame() {
             return GameState::FINISHED;
         }
         observer->onSkipped(this, currentPlayer);
+        clearMoveData();
         switchPlayer();
         moveCounter++;
-        clearMoveData();
         return GameState::SKIPPED;
     }
 }

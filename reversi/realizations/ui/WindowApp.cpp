@@ -389,7 +389,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     HWND hwnd = CreateWindow(g_szClassName,
                         "ReversiGame",
                         WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, // disable resize
-                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        50, 60, 710, 700,
                         NULL,
                         NULL,
                         hInstance,
