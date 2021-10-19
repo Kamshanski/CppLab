@@ -2,7 +2,6 @@
 
 using namespace std;
 
-
 //---------------------------
 
 int WINDOW_WIDTH = 710;
@@ -98,13 +97,18 @@ void printToGameLog(string msg) {
     redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
 }
 
+void printScoreText(string msg) {
+    lScore->setText(msg);
+    redrawRectangle(MAIN_WINDOW_HWND, lScore->getViewRect());
+}
+
 void displayScore(map<Chip*, int>& stats) {
     string msg = format(SCORE_TXT,
             engine->getPlayersChip(1)->cstr(),
             stats[Chip::BLACK],
             stats[Chip::WHITE],
             engine->getPlayersChip(2)->cstr());
-    lScore->setText(msg);
+    printScoreText(msg);
 }
 
 void setGameButtonText(string text) {
@@ -183,8 +187,12 @@ public:
 
     void onStarted(ReversiEngine *engine) override {
         fetchField();
+        auto snap = engine->getSnapshot();
+        auto stat = snap->getStatistics();
+        displayScore(stat);
         printToGameLog(LOG_GAME_STARTED);
         setGameButtonText(BTN_FINISH);
+        delete snap;
     }
 
     void onFinished(ReversiEngine *engine, Field *snap) override {
@@ -201,7 +209,6 @@ public:
                          winner->cstr());
         displayScore(stats);
         setGameButtonText(BTN_START);
-
         printToGameLog(msg);
         printToGameLog(LOG_PRESS_START);
     }
