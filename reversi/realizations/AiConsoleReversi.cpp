@@ -2,8 +2,8 @@
 class AiConsoleReversi : public ConsoleReversi {
 public:
     AiConsoleReversi() {
-        player1 = new HumanPlayer(Chip::BLACK());
-        player2 = new AiPlayer(Chip::WHITE());
+        player1 = new HumanPlayer(Chip::BLACK);
+        player2 = new AiPlayer(Chip::WHITE);
     }
 };
 

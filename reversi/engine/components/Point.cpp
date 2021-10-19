@@ -1,4 +1,5 @@
 #include "includeAll.h"
+
 Point::Point(const int x, const int y) : x(x), y(y) {}
 
 bool Point::operator==(const Point &rhs) const {

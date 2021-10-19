@@ -118,10 +118,6 @@ ChipButton *ButtonsField::getButton(int i, int j) const { return buttons[j][i]; 
 RECT ButtonsField::getViewRect() const {
     return RECT {startX, startY, endX, endY};
 }
-RECT ButtonsField::getChipButtonViewRect(int i, int j) const {
-    auto chip = getButton(i, j);
-    return chip->getViewRect();
-}
 RECT ButtonsField::getChipViewRect(int i, int j) const {
     auto chipBtn = getButton(i, j);
     auto chipBtnRect = chipBtn->getChipRect();
