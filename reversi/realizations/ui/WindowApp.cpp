@@ -2,6 +2,14 @@
 
 using namespace std;
 
+
+//---------------------------
+
+int WINDOW_WIDTH = 710;
+int WINDOW_HEIGHT = 700;
+int WINDOW_X = 50;
+int WINDOW_Y = 60;
+
 //---------------------------
 const char g_szClassName[]              = "Reversi Game";
 
@@ -350,16 +358,37 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
     bool useDefaultProc = true;
 
     switch(msg) {
-        case WM_PAINT: {
+        case WM_PAINT: {    // double buffering applied
             RECT windowRect;
             GetClientRect(hwnd, &windowRect);
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
 
-            // paint buttons
+            // Create off-screen DC for double buffering
+            HDC hdcMem = CreateCompatibleDC(hdc);
+            HBITMAP hbmMem = CreateCompatibleBitmap(hdc, WINDOW_WIDTH, WINDOW_HEIGHT);
+            HANDLE hOld   = SelectObject(hdcMem, hbmMem);
+
+            // Fill screen with white
+            SelectObject(hdc, GetStockObject(DC_BRUSH));
+            SetDCBrushColor(hdc, Color::WHITE);
+            SelectObject(hdc, GetStockObject(DC_PEN));
+            SetDCPenColor(hdc, Color::WHITE);
+            Rectangle(hdcMem, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+            // Paint views with hdcMem
             for (Drawable* v: drawables) {
-                v->onPaint(hdc);
+                v->onPaint(hdcMem);
             }
+
+            // Show built image on the screen
+            BitBlt(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, hdcMem, 0, 0, SRCCOPY);
+
+            // Clear memory
+            SelectObject(hdcMem, hOld);
+            DeleteObject(hbmMem);
+            DeleteDC    (hdcMem);
+
             EndPaint(hwnd, &ps);
             useDefaultProc = false;
             break;
@@ -367,8 +396,11 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
         case WM_MOUSEMOVE: {
             int pX = GET_X_LPARAM(lParam);
             int pY = GET_Y_LPARAM(lParam);
+
             bool hasChanges = false;
+
             hasChanges |= bfField->onMouseMove(pX, pY);
+
             if (hasChanges) {
                 RECT changedRect = bfField->getViewRect();
                 InvalidateRect(hwnd, &changedRect, NULL);
@@ -382,9 +414,9 @@ LRESULT lpfnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)  {
             int pY = GET_Y_LPARAM(lParam);
 
             bool clickedAny = false;
+
             RECT changedRect;
             GetClientRect(hwnd, &changedRect);
-            InvalidateRect(hwnd, &changedRect, NULL);
 
             for(Clickable* view: clickables) {
                 if (view->onClick(pX, pY)) {
@@ -441,14 +473,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         return 0;
     }
 
-    HWND hwnd = CreateWindow(g_szClassName,
-                        WINDOW_TITLE,
-                        WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, // disable resize
-                        50, 60, 710, 700,
-                        NULL,
-                        NULL,
-                        hInstance,
-                        NULL);
+    HWND hwnd = CreateWindow(
+            g_szClassName,
+            WINDOW_TITLE,
+            WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, // disable resize
+            WINDOW_X, WINDOW_Y,
+            WINDOW_WIDTH, WINDOW_HEIGHT,
+            NULL, NULL,
+            hInstance,
+            NULL);
 
 
     if (hwnd == NULL)    {

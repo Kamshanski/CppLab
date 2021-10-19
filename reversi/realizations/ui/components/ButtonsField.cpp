@@ -1,5 +1,4 @@
 #include "includeAll.h"
-#include "ButtonsField.h"
 
 
 const int ButtonsField::BTN_FIELD_SIZE = 8;
@@ -15,10 +14,10 @@ ButtonsField::ButtonsField(int x, int y, int elementSize, int chipSize, int gap)
     for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
         for (int j = 0; j < BTN_FIELD_SIZE; ++j) {
             int btnX = x + j * (elementSize + gap);
-
             int btnY = y + i * (elementSize + gap);
 
-            setButton(i, j, new ChipButton(btnX, btnY, elementSize, chipSize));
+            ChipButton* btn = new ChipButton(btnX, btnY, elementSize, chipSize);
+            setButton(i, j, btn);
         }
     }
     int viewSize = BTN_FIELD_SIZE * elementSize + (BTN_FIELD_SIZE - 1) * gap;
@@ -67,8 +66,6 @@ bool ButtonsField::onClick(int pX, int pY) {
         ChipButton* btn = getButton(indexes.first, indexes.second);
         if (listener != nullptr)
             listener->onClickOnButton(this, indexes.first, indexes.second);
-//        btn->setChipVisibility(!btn->isChipVisible());
-//        btn->setChipColor(ChipButton::CHIP_WHITE);
         return true;
     }
     return false;
@@ -102,15 +99,6 @@ pair<int, int> ButtonsField::findEnteredButton(int pX, int pY) {
         return {-1, -1};
     }
     return {i, j};
-
-    for (int i = 0; i < BTN_FIELD_SIZE; ++i) {
-        for (int j = 0; j < BTN_FIELD_SIZE; ++j) {
-            if (getButton(i, j)->containsPoint(pX, pY)) {
-                return {i, j};
-            }
-        }
-    }
-    return {-1 ,-1};
 }
 
 ChipButton *ButtonsField::getButton(int i, int j) const { return buttons[j][i]; }
