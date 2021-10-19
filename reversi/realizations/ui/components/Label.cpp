@@ -9,6 +9,13 @@ Label::Label(int x, int y, int width, int height, bool centerAlign, bool singleL
 
 void Label::onPaint(HDC hdc) const {
     SelectObject(hdc, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(hdc, Color::WHITE);
+    SelectObject(hdc, GetStockObject(DC_PEN));
+    SetDCPenColor(hdc, Color::WHITE);
+
+    Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+
+    SelectObject(hdc, GetStockObject(DC_BRUSH));
     SetDCBrushColor(hdc, color);
     SelectObject(hdc, GetStockObject(DC_PEN));
     SetDCPenColor(hdc, color);
