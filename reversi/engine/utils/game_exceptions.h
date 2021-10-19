@@ -32,7 +32,7 @@ struct IllegalChipException : public std::exception {
 
     const char* what() const noexcept override {
         ostringstream o;
-        o << "Chip " << chip << " cannot be used here: " << msg;
+        o << "Chip " << *chip << " cannot be used here: " << msg;
 
         auto* s = new string();
         *s = o.str();
@@ -48,7 +48,7 @@ struct IllegalMoveException : public IllegalChipException {
     const char* what() const noexcept override {
         ostringstream o;
         o << "Illegal move with "
-          << '\"' << chip << '\"'
+          << '\"' << *chip << '\"'
           << " on position "
           << '(' << x << ", " << y << "):"
           << msg;

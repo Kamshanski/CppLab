@@ -20,14 +20,15 @@ const COLORREF ChipButton::LINE_COLOR = Color::BLACK;
 
 ChipButton::ChipButton(int x, int y, int btnSize, int chipSize) : x(x), y(y), btnSize(btnSize), chipSize(chipSize) {
     btnRect = {x, y, x + btnSize, y + btnSize };
-    int dPlus = (btnSize + chipSize) / 2;
-    int dMinus = (btnSize - chipSize) / 2;
+    int centerX = x + btnSize / 2;
+    int centerY = y + btnSize / 2;
+    int radius = chipSize / 2;
 
     chipRect = {
-            x + dMinus,
-            y + dMinus,
-            x + dPlus,
-            y + dPlus
+            centerX - radius,
+            centerY - radius,
+            centerX + radius,
+            centerY + radius,
     };
 }
 
@@ -69,6 +70,14 @@ RECT ChipButton::getViewRect() const {
     return btnRect;
 }
 
+
+int ChipButton::getChipSize() const {
+    return chipSize;
+}
+
+RECT ChipButton::getChipRect() const {
+    return chipRect;
+}
 
 
 

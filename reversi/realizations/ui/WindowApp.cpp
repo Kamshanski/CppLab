@@ -5,7 +5,10 @@ using namespace std;
 
 //---------------------------
 HWND MAIN_WINDOW_HWND;
-const char g_szClassName[] = "Reversi Game";
+const char g_szClassName[]              = "Reversi Game";
+const string VERTICAL_FIELD_INDEXES[]   = {"1", "2", "3", "4", "5", "6", "7", "8"};
+const string HORIZONTAL_FIELD_INDEXES[]     = {"A", "B", "C", "D", "E", "F", "G", "H"};
+
 
 ButtonsField* bfField = nullptr;
 RadioButtonGroup* rbgPlayerColor = nullptr;
@@ -84,8 +87,9 @@ public:
         ostringstream o;
         o << "Player " << engine->getPlayerNumber(player)
           << " (" << *player << ") "
-          << "moved on " << move << ". "
-          << switchedList->size() << " enemy's chips were captured.";
+          << "moved on "
+          << '(' << VERTICAL_FIELD_INDEXES[move.getX()] << ", " << HORIZONTAL_FIELD_INDEXES[move.getY()] << ')' << ". "
+          << "Number of captured enemy's chips: " << switchedList->size();
         lGameLog->addLine(o.str());
         redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
     }
@@ -105,7 +109,7 @@ public:
         auto stats = snap->getStatistics();
         Chip* winner = (stats[Chip::BLACK] > stats[Chip::WHITE])
                 ? Chip::BLACK
-                : (stats[Chip::BLACK] > stats[Chip::WHITE])
+                : (stats[Chip::BLACK] < stats[Chip::WHITE])
                     ? Chip::WHITE
                     : Chip::NONE;
 
@@ -126,7 +130,16 @@ public:
     }
 
     void onError(ReversiEngine *engine, exception &error) override {
-        lGameLog->addLine(error.what());
+        auto ime = dynamic_cast<IllegalMoveException*>(&error);
+        if ((ime) != nullptr) {
+            ostringstream  o;
+            o << "Illegal move with "
+               << '\"' << *ime->chip << '\"'
+               << " on position "
+               << '(' << VERTICAL_FIELD_INDEXES[ime->x] << ", " << HORIZONTAL_FIELD_INDEXES[ime->y] << ')';
+            lGameLog->addLine(o.str());
+        } else {
+        }
         redrawRectangle(MAIN_WINDOW_HWND, lGameLog->getViewRect());
     }
 };
@@ -190,48 +203,85 @@ struct FieldListener: ButtonsFieldListener {
 
 void initApp(HWND parent) {
     MAIN_WINDOW_HWND = parent;
+
     engine = new ReversiEngine();
     engine->setObserver(new GameObserver());
     // init button field indexes
     bfField = new ButtonsField(60, 60, 50, 20, 4);
-    // todo engine
     bfField->setListener(new FieldListener());
-
-    lPlayerColor = new Label(500, 60, 150, 20);
-    lPlayerColor->setText("Your color:");
-    rbgPlayerColor = new RadioButtonGroup(500, 90, {"Black (goes first)", "White"});
-    rbgPlayerColor->setListener(new PlayerColorListener());
-
-    lSecondPlayer = new Label(500, 170, 150, 20);
-    lSecondPlayer->setText("Second player:");
-    rbgSecondPlayer = new RadioButtonGroup(500, 200, {"AI", "Human"});
-    rbgSecondPlayer->setListener(new SecondPlayerListener());
-
-    lGameLog = new MultilineLabel(60, bfField->getViewRect().bottom + 10, 800, 40, 4);
-    lGameLog->addLine("Press <<START>> to start the game!");
-
-    lScore = new Label(60, 20, 450, 40, true, false);
-    lScore->setText("Player 1 (BLACK) XX : XX (WHITE) Player 2");
-
-    auto r = rbgSecondPlayer->getViewRect();
-    btnStartStop = new Button(r.left, r.top + 200, 100, 61);
-    btnStartStop->setListener(new StartStopBtnListener());
-    btnStartStop->setText("START");
-
-    drawables.push_back(lPlayerColor);
-    drawables.push_back(rbgPlayerColor);
-    drawables.push_back(lSecondPlayer);
-    drawables.push_back(rbgSecondPlayer);
-    drawables.push_back(lGameLog);
-    drawables.push_back(lScore);
-    drawables.push_back(btnStartStop);
-    // hard object must be the last
+    clickables.push_back(bfField);
     drawables.push_back(bfField);
 
+    int afterFieldX = 530;
+    lPlayerColor = new Label(afterFieldX, 60, 150, 20);
+    lPlayerColor->setText("Your color:");
+    drawables.push_back(lPlayerColor);
+
+    rbgPlayerColor = new RadioButtonGroup(afterFieldX, 90, {"Black (goes first)", "White"});
+    rbgPlayerColor->setListener(new PlayerColorListener());
     clickables.push_back(rbgPlayerColor);
+    drawables.push_back(rbgPlayerColor);
+
+    lSecondPlayer = new Label(afterFieldX, 170, 150, 20);
+    lSecondPlayer->setText("Second player:");
+    drawables.push_back(lSecondPlayer);
+    rbgSecondPlayer = new RadioButtonGroup(afterFieldX, 200, {"AI", "Human"});
+    rbgSecondPlayer->setListener(new SecondPlayerListener());
+    drawables.push_back(rbgSecondPlayer);
     clickables.push_back(rbgSecondPlayer);
+
+    auto r = rbgSecondPlayer->getViewRect();
+    btnStartStop = new Button(afterFieldX, r.top + 200, 100, 61);
+    btnStartStop->setListener(new StartStopBtnListener());
+    btnStartStop->setText("START");
+    drawables.push_back(btnStartStop);
     clickables.push_back(btnStartStop);
-    clickables.push_back(bfField);
+
+    lGameLog = new MultilineLabel(60, bfField->getViewRect().bottom + 30, 800, 40, 4);
+    lGameLog->addLine("Press <<START>> to start the game!");
+    drawables.push_back(lGameLog);
+
+    lScore = new Label(60, 10, 450, 40, true, false);
+    lScore->setText("Player 1 (BLACK) XX : XX (WHITE) Player 2");
+    drawables.push_back(lScore);
+
+
+    int lIndexWidth = 10;
+    auto chipRect = bfField->getChipViewRect(0, 0);
+    int lIndexHeight = abs(chipRect.top - chipRect.bottom);
+
+    for (int i = 0; i < ButtonsField::BTN_FIELD_SIZE; ++i) {
+        int rX = bfField->getViewRect().left - lIndexWidth*2;
+        int rY = bfField->getChipViewRect(i, 0).top;
+
+        int lX = bfField->getViewRect().right + lIndexWidth;
+        int lY = rY;
+
+        auto lLeft = new Label(rX, rY, lIndexWidth, lIndexHeight);
+        lLeft->setText(VERTICAL_FIELD_INDEXES[i]);
+        drawables.push_back(lLeft);
+
+        auto lRight = new Label(lX, lY, lIndexWidth, lIndexHeight);
+        lRight->setText(VERTICAL_FIELD_INDEXES[i]);
+        drawables.push_back(lRight);
+    }
+
+    for (int i = 0; i < ButtonsField::BTN_FIELD_SIZE; ++i) {
+        int centerX = (bfField->getChipViewRect(0, i).left + bfField->getChipViewRect(0, i).left) / 2;
+        int tX = centerX + lIndexWidth/2;
+        int tY = bfField->getViewRect().top - lIndexHeight - 4;
+
+        int bX = tX;
+        int bY = bfField->getViewRect().bottom + 4;
+
+        auto lTop = new Label(tX, tY, lIndexWidth, lIndexHeight, true);
+        lTop->setText(HORIZONTAL_FIELD_INDEXES[i]);
+        drawables.push_back(lTop);
+
+        auto lBottom = new Label(bX, bY, lIndexWidth, lIndexHeight, true);
+        lBottom->setText(HORIZONTAL_FIELD_INDEXES[i]);
+        drawables.push_back(lBottom);
+    }
 }
 
 // TODO продебажить пропуски

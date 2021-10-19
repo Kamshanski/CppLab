@@ -48,11 +48,11 @@ GameState ReversiEngine::analyseGame() {
     if (!availableMoves->empty()) {
         return GameState::MAY_MOVE;
     } else {
-        observer->onSkipped(this, currentPlayer);
         if (enemyMoves->empty()) {
             finishGame();
             return GameState::FINISHED;
         }
+        observer->onSkipped(this, currentPlayer);
         switchPlayer();
         moveCounter++;
         clearMoveData();

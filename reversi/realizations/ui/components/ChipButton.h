@@ -38,4 +38,7 @@ public:
     void setChipColor(COLORREF chipColor);
     // getter only for test
     bool isChipVisible() const;
+    int getChipSize() const;
+
+    RECT getChipRect() const;
 };

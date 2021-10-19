@@ -25,6 +25,8 @@ public:
 
     void onPaint(HDC hdc) const override;
     RECT getViewRect() const override;
+    RECT getChipButtonViewRect(int i, int j) const;
+    RECT getChipViewRect(int i, int j) const;
 
     bool onClick(int pX, int pY) override;
 
