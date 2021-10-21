@@ -13,7 +13,6 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
-#include <d2d1.h>
 #include <windowsx.h>
 #include <math.h>
 #include <memory>

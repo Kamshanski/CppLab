@@ -140,7 +140,7 @@ struct PlayerColorListener : RadioButtonGroupListener {
 struct SecondPlayerListener : RadioButtonGroupListener {
     bool onSelected(int idNew, int idPrev, vector<string> &options) override {
         if (!engine->isStarted()) {
-            isAiSecondPLayer = (idNew == 0);
+            isAiSecondPLayer = (idNew != 0);
             return true;
         }
         return false;
