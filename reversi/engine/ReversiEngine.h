@@ -21,8 +21,10 @@ void clearVectorOfPointers(vector<T*>* v);
 
 template<typename K, typename V>
 void clearMapOfVectorsOfPointers(map<K, V*>* m);
+
 class Player;
 class GameListener;
+
 class ReversiEngine {
 private:
     bool _isStarted = false;
@@ -44,7 +46,6 @@ public:
     ReversiEngine();
     Field* getSnapshot() const;
     void startGame();
-    GameState analyseGame();
     void move(Point point, Chip* player);
     void finishGame();
 
@@ -62,6 +63,7 @@ public:
     Chip* getCurrentPlayer();
     Chip* getChipOn(Point point);
 private:
+    GameState analyseGame();
     void checkIsStarted() const;
     void initDefaultValues();
     PointsList* findAllPossibleMovesFor(Chip* player);

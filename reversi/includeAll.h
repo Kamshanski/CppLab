@@ -26,9 +26,6 @@
 #include "ReversiEngine.h"
 #include "GameListener.h"
 #include "Player.h"
-#include "HumanPlayer.h"
-#include "AiPlayer.h"
-#include "ConsoleReversi.h"
 
 #include "ui/components/Drawable.h"
 #include "ui/components/Clickable.h"
