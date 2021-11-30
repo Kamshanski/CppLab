@@ -25,7 +25,6 @@
 #include "Field.h"
 #include "ReversiEngine.h"
 #include "GameListener.h"
-#include "Player.h"
 
 #include "ui/components/Drawable.h"
 #include "ui/components/Clickable.h"
